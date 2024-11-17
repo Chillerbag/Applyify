@@ -7,7 +7,7 @@ function grabJobData() {
   if (jobData) {
     console.log(jobData.innerHTML)
   } else {
-    grabJobData()
+    setTimeout(grabJobData, 100)
   }
 }
 
