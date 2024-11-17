@@ -1,0 +1,10 @@
+{
+    "manifest_version": 3,
+    "name": "Applyify",
+    "description": "Base Level Extension",
+    "version": "0.1",
+    "action": {
+      "default_popup": "home.html",
+      "default_icon": "hello_extensions.png"
+    }
+  }
