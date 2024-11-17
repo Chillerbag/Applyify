@@ -5,6 +5,6 @@
     "version": "0.1",
     "action": {
       "default_popup": "home.html",
-      "default_icon": "hello_extensions.png"
+      "default_icon": "applify.png"
     }
   }
