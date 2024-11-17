@@ -1,17 +1,26 @@
-const JOB_DATA_CONTAINER = ".jobs-description__container";
-let jobData = null;
+const JOB_DETAILS_CONTATINER = "job-details-jobs-unified-top-card__primary-description-container";
+const JOB_DESCRIPTION_CONTAINER = ".jobs-description__container";
 
-// wait for the page to load
-window.addEventListener("DOMContentLoaded", function () {
-  grabJobData();
+let jobDetails = null;
+let jobDescription = null;
+
+// wait for the job data container to appear
+const observer = new MutationObserver((mutations, obs) => {
+  jobDetails = document.querySelector(JOB_DETAILS_CONTATINER);
+  if (jobDetails && jobDetails.innerHTML.includes('white-space-pre')) {
+    console.log("Job Details: ", jobDetails.innerHTML);
+    obs.disconnect();
+  }
+
+  jobDescription = document.querySelector(JOB_DESCRIPTION_CONTAINER);
+  if (jobDescription && jobDescription.innerHTML.includes('white-space-pre')) {
+    console.log("Job Description: ", jobDescription.innerHTML);
+    obs.disconnect();
+  }
 });
 
-// loop until find the job data container
-function grabJobData() {
-  jobData = document.querySelector(JOB_DATA_CONTAINER);
-  if (jobData) {
-    console.log(jobData.innerHTML);
-  } else {
-    console.log("Job data not found");
-  }
-}
+// start observing the document
+observer.observe(document, {
+  childList: true,
+  subtree: true
+});
