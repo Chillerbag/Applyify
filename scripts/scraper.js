@@ -109,12 +109,8 @@ function parseHTML(html) {
   return text;
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-  console.log("DOM fully loaded and parsed");
-  observePage();
-});
-
-// TODO: only observe when page fully loaded for first time
+// wait for the page to fully load before observing
+// note doesn't account for async loading of elements
 window.addEventListener("load", function() {
   console.log("window fully loaded and parsed");
   observePage();
