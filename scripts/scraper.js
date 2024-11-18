@@ -1,6 +1,9 @@
 const JOB_DETAILS_CONTAINER = ".jobs-search__job-details--container";
 const JOB_INFO_CONTATINER = ".job-details-jobs-unified-top-card__primary-description-container";
+const JOB_INFO_CLASS = "tvm__text tvm__text--low-emphasis";
 const JOB_DESCRIPTION_CONTAINER = ".jobs-description__container";
+const LTR = "ltr";
+const ARIA_LABEL = "aria-label";
 
 let currentUrl = null;
 
@@ -9,6 +12,8 @@ let jobTitle = null;
 let jobInfo = null;
 let jobDescription = null;
 let dataGrabbed = false;
+
+const parser = new DOMParser();
 
 // wait for the job data container to appear
 const observer = new MutationObserver((mutations, obs) => {
@@ -22,19 +27,18 @@ const observer = new MutationObserver((mutations, obs) => {
   }
 
   // get outer job details container
-  jobDetails = document.querySelector(JOB_DETAILS_CONTAINER);
+  jobDetails = getJobDetailsContainer();
   if (jobDetails) {
     // title is in the aria-label attribute
     if (!jobTitle) {
-      jobTitle = jobDetails.getAttribute("aria-label");
+      jobTitle = parseHTML(getJobTitleElement(jobDetails));
       console.log("Grabbed job title: ", jobTitle);
     }
     
     // grab the job info
     if (!jobInfo) {
-      jobInfoElement = jobDetails.querySelector(JOB_INFO_CONTATINER);
-      if (jobInfoElement && jobInfoElement.innerHTML.includes('white-space-pre')) {
-        jobInfo = jobInfoElement.innerHTML;
+      jobInfoElement = getJobInfoElement(jobDetails);
+      if (jobInfoElement && jobInfoElement.includes(JOB_INFO_CLASS) && (jobInfo = parseHTML(jobInfoElement)) !== null) {
         console.log("Grabbed job info: ", jobInfo);
       } else {
         console.log("Waiting for job info...");
@@ -43,9 +47,8 @@ const observer = new MutationObserver((mutations, obs) => {
 
     // grab the job description
     if (!jobDescription) {
-      jobDescriptionElement = jobDetails.querySelector(JOB_DESCRIPTION_CONTAINER);
-      if (jobDescriptionElement && jobDescriptionElement.innerHTML.includes('white-space-pre')) {
-        jobDescription = jobDescriptionElement.innerHTML;
+      jobDescriptionElement = getJobDescriptionElement(jobDetails);
+      if (jobDescriptionElement &&  jobDescriptionElement.includes(LTR) && (jobDescription = parseHTML(jobDescriptionElement)) !== null) {
         console.log("Grabbed job description: ", jobDescription);
       } else {
         console.log("Waiting for job description...");
@@ -65,8 +68,20 @@ const observer = new MutationObserver((mutations, obs) => {
   }
 });
 
-function getPageTitle(jobDetails) {
-  return jobDetails.getAttribute("aria-label");
+function getJobDetailsContainer() {
+  return document.querySelector(JOB_DETAILS_CONTAINER);
+}
+
+function getJobTitleElement(jobDetails) {
+  return jobDetails.getAttribute(ARIA_LABEL);
+}
+
+function getJobInfoElement(jobDetails) {
+  return jobDetails.querySelector(JOB_INFO_CONTATINER).innerHTML;
+}
+
+function getJobDescriptionElement(jobDetails) {
+  return jobDetails.querySelector(JOB_DESCRIPTION_CONTAINER).innerHTML;
 }
 
 function resetData() {
@@ -88,4 +103,19 @@ function grabURL() {
   return window.location.href;
 }
 
-observePage();
+function parseHTML(html) {
+  const doc = parser.parseFromString(html, 'text/html');
+  const text = doc.body.textContent.trim();
+  return text;
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  console.log("DOM fully loaded and parsed");
+  observePage();
+});
+
+// TODO: only observe when page fully loaded for first time
+window.addEventListener("load", function() {
+  console.log("window fully loaded and parsed");
+  observePage();
+});
