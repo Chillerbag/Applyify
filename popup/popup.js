@@ -3,9 +3,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     // TODO: ONLY OPEN IF A RESUME IS UPLOADED!
     const openSidePanelButton = document.getElementById('openSidePanel');
+    const file = document.getElementById('resumeFile').files[0];
+    var reader = new FileReader();
     
+    // handle the button 
     openSidePanelButton.addEventListener('click', async () => {
       try {
+        console.log("ok that worked!")
         // Get the current tab
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         
@@ -20,4 +24,21 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Error opening side panel:', error);
       }
     });
+
+    // if we have loaded and read the file? 
+    reader.addEventListener(
+      "load",
+      () => {
+        resumeRead = reader.result;
+        console.log(resumeRead);
+      }
+    )
+
+    // unsure of what this actually does. 
+    if (file) {
+      console.log("made it at least this far");
+      document.getElementById("resumeUploadedStatus").innerHTML = "resume Uploaded!";
+      // TODO: should this be var? 
+      reader.readAsText(file, "UTF-8");
+    }
   });
