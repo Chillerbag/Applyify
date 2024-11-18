@@ -31,9 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
       () => {
         resumeRead = reader.result;
         console.log(resumeRead);
+
+        //TODO: USE CHROME STORAGE API TO STORE RAW TEXT
       }
     )
 
+    // TODO: investigate why this closes the popup once loaded
     // unsure of what this actually does. 
     if (file) {
       console.log("made it at least this far");
