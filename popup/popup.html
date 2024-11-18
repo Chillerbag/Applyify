@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Applyify</title>
+  <style>
+    body {
+      width: 300px;
+      padding: 16px;
+      font-family: Arial, sans-serif;
+      background-color: rgb(90, 199, 230);
+    }
+    
+    button {
+      width: 100%;
+      background-color: #0077b5;
+      padding: 8px;
+      color: white;
+      border: none;
+      margin: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    button:hover {
+      background-color: #006097;
+    }
+
+    .title {
+      font-size: 24px;
+      text-align: center;
+    }
+    
+    .message {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .resumeNotUploaded {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #d31616;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="title">
+    APPLYIFY
+  </div>
+  <button id="openSidePanel">Open Side Panel</button>
+  <button id="uploadResume">Upload Your Resume</button>
+  <div class="message">
+    Note: Side panel is only available on LinkedIn
+  </div>
+  <div class="resumeNotUploaded">
+    Resume status: not uploaded
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

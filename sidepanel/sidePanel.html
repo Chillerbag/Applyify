@@ -1,10 +1,68 @@
-<!DOCTYPE html>
+=<!DOCTYPE html>
 <html>
-  <head>
-    <title>My Sidepanel</title>
-  </head>
-  <body>
-    <h1>All sites sidepanel extension</h1>
-    <p>This side panel is enabled on all sites</p>
-  </body>
+<head>
+    <title>Applyify Side Panel</title>
+    <style>
+        body {
+            width: 100%;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            background-color: #a3c4d4;
+        }
+
+        .container {
+            background-color: rgb(90, 199, 230);
+            padding: 10px;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .textbox {
+          background-color: rgb(176, 255, 229);
+          height: 100px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+
+        p {
+            color: #666;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Suggested CV for this job</h1>
+        <div class = "textbox" id="CVContent">
+            <p> the content of the cv reccomendation can go here</p>
+            <p> we should probably have a button to refresh? like reprompt gemini if this is bad.</p>
+        </div>
+    </div>
+
+    <div class="container">
+      <h1>Suggested Resume Updates for this Job</h1>
+      <div class ="textbox" id="resumeContent">
+          <p>Here gemini will give us a list of suggested changes to match this job</p>
+      </div>
+    </div>
+
+    <div class="container">
+      <h1>Skill Checklist</h1>
+      <div class ="textbox" id="skillChecklist">
+          <p>Here we can have like a checklist of skills you should have for this job that gemini parses out.</p>
+      </div>
+    </div>
+
+
+    <script src="scripts/siteEnabled.js"></script>
+</body>
 </html>
