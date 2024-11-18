@@ -6,7 +6,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
     if (url.origin === LINKEDIN_URL) {
       await chrome.sidePanel.setOptions({
         tabId,
-        path: 'sidepanel.html',
+        path: 'sidePanel.html',
         enabled: true
       });
     } else {
