@@ -2,9 +2,9 @@
 // enables the sidepanel if the user accesses the site. we cant automatically open the side panel on access of the site
 // unfortunately. Due to security reasons. 
 
-// TODO: add more sitess
-// TODO: error out if no resume is uploaded to storage
+// TODO: add more sites
 
+// TODO: REFACTOR THIS SO THAT IT AUTO OPENS IF WE GO TO LINKEDIN. 
 const LINKEDIN_URL = 'https://www.linkedin.com';
 chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
 
@@ -21,6 +21,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
         enabled: true
       });
     } else {
+      // TODO. there has to be something we can do here.
       await chrome.sidePanel.setOptions({
         tabId,
         enabled: false

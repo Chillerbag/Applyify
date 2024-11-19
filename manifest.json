@@ -24,9 +24,6 @@
     "storage",
     "tabs"
   ],
-  "background": {
-    "service_worker": "scripts/siteEnabled.js"
-  },
   "side_panel": {
     "default_path": "sidepanel/sidePanel.html"
   },
