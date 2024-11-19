@@ -33,6 +33,7 @@ function resumeUploadedChange() {
     resumeStatusMsg.innerHTML = "resume Uploaded!";
     resumeStatusMsg.className = "resumeUploaded";
 }
+
     
 
 

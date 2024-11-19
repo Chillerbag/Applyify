@@ -47,6 +47,8 @@ const observer = new MutationObserver((mutations, obs) => {
     if (!jobTitle) {
       jobTitle = parseHTML(getJobTitleElement(jobContainer));
       console.log("Grabbed job title: ", jobTitle);
+      chrome.storage.session.set({"jobTitle": jobTitle});
+
     }
 
     // grab the job info
@@ -58,6 +60,7 @@ const observer = new MutationObserver((mutations, obs) => {
         (jobInfo = parseHTML(jobInfoElement.innerHTML)) !== null
       ) {
         console.log("Grabbed job info: ", jobInfo);
+        chrome.storage.session.set({"jobInfo": jobInfo});
       } else {
         console.log("Waiting for job info...");
       }
@@ -72,6 +75,7 @@ const observer = new MutationObserver((mutations, obs) => {
         (jobDescription = parseHTML(jobDescriptionElement.innerHTML)) !== null
       ) {
         console.log("Grabbed job description: ", jobDescription);
+        chrome.storage.session.set({"jobDescription": jobDescription});
       } else {
         console.log("Waiting for job description...");
       }
@@ -88,6 +92,7 @@ const observer = new MutationObserver((mutations, obs) => {
           (companyName = parseHTML(companyNameElement.innerHTML)) !== null
         ) {
           console.log("Grabbed company name: ", companyName);
+          chrome.storage.session.set({"companyName": companyName});
         } else {
           console.log("Waiting for company name...");
         }
@@ -101,6 +106,7 @@ const observer = new MutationObserver((mutations, obs) => {
           (companyInfo = parseHTML(companyInfoElement.innerHTML)) !== null
         ) {
           console.log("Grabbed company info: ", companyInfo);
+          chrome.storage.session.set({"companyInfo": companyInfo});
         } else {
           console.log("Waiting for company info...");
         }
@@ -117,6 +123,7 @@ const observer = new MutationObserver((mutations, obs) => {
           )) !== null
         ) {
           console.log("Grabbed company description: ", companyDescription);
+          chrome.storage.session.set({"companyDescription": companyDescription});
         } else {
           console.log("Waiting for company description...");
         }

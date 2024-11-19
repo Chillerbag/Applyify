@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         await chrome.sidePanel.open({ tabId: tab.id });
 
-        chrome.tabs.create({url: "https://linkedin.com"});
+        chrome.tabs.create({url: "https://linkedin.com/jobs"});
         
       } catch (error) {
         console.error('Error opening side panel:', error);
