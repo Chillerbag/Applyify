@@ -1,14 +1,13 @@
-chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' });
 console.log("done");
 chrome.storage.onChanged.addListener(async (changes, area) => {
     // we also check companydescription because its the last one to add, to save on calls to check_storage()
-    if (area === "session") {
+    if (area === "local") {
         console.log("starting gemini");
-        result_obj = check_storage();
+        result_obj = await check_storage();
         if (result_obj) {
             console.log("bootng up gemini");
             // this is probably super error prone, so we should error handle here!!
-            cur_writer = writerModelSetup();
+            cur_writer = await writerModelSetup();
 
             //TODO: THESE SHOULD RUN SIMULTANEOUS? 
             // make cv suggestion
@@ -34,7 +33,7 @@ async function check_storage() {
     const field_arr = ["jobTitle", "jobInfo", "jobDescription", "companyName", "companyInfo", "companyDescription"];
     const results_obj = {};
     for (field in field_arr) {
-        const field_result = await chrome.storage.session.get([field])
+        const field_result = await chrome.storage.local.get([field])
         if (field_result) {
             results_obj[field] = field_result;
             continue;
@@ -54,6 +53,7 @@ async function writerModelSetup() {
 
 async function geminiWriterHandler(results_obj, writer, base_string, target) {
     const prompt = base_string(results_obj);
+    console.log(`prompt string: ${prompt}`);
 
     const stream = await writer.writeStreaming(
         prompt

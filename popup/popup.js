@@ -1,5 +1,9 @@
 // popup.js
 // handles the buttons and stuff in the popup using a callback function
+
+// this is so the scraper can use the storage
+//chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' });
+
 document.addEventListener('DOMContentLoaded', () => {
     // TODO: ONLY OPEN IF A RESUME IS UPLOADED!
     const openSidePanelButton = document.getElementById('openSidePanel');
