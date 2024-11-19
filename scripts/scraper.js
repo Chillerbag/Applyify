@@ -29,6 +29,8 @@ let dataGrabbed = false;
 
 const parser = new DOMParser();
 
+
+
 // wait for the job data container to appear
 const observer = new MutationObserver((mutations, obs) => {
   // reset data if new url

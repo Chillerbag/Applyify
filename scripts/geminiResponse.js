@@ -1,28 +1,32 @@
+chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' });
+console.log("done");
 chrome.storage.onChanged.addListener(async (changes, area) => {
     // we also check companydescription because its the last one to add, to save on calls to check_storage()
-    if (chrome.storage.session.get(["companyDescription"]) && area === "session") {
+    if (area === "session") {
+        console.log("starting gemini");
         result_obj = check_storage();
         if (result_obj) {
+            console.log("bootng up gemini");
             // this is probably super error prone, so we should error handle here!!
             cur_writer = writerModelSetup();
 
+            //TODO: THESE SHOULD RUN SIMULTANEOUS? 
             // make cv suggestion
             cv_base_string = templateForGeminiPrompt("write an excellent cover letter for {jobTitle} at {companyName}. The job info is {jobInfo}, and the description is {jobDescription}. Its important to also include what the company stands for. Here's the company description: {companyDescription}");
             cv_target = document.getElementById("CVContent");
             await geminiWriterHandler(result_obj, cur_writer, cv_base_string, cv_target);
 
-
             // make skill checklsit
+            skills_base_string = templateForGeminiPrompt("write a list of skills required for {jobTitle}. The job info is {jobInfo}, and the description is {jobDescription}.");
+            skills_target = document.getElementById("skillChecklist");
+            await geminiWriterHandler(result_obj, cur_writer, skills_base_string, skills_target);
         }
         else {
             // throw error, not enough job info
             // we should probably display this in some form of textbox. 
             throw new Error("not enough info from job!")
         }
-
     }
-
-
 });
 
 // this is kind of not performant.
