@@ -4,8 +4,8 @@
 
 // TODO: add more sitess
 // TODO: error out if no resume is uploaded to storage
-const LINKEDIN_URL = 'https://www.linkedin.com';
 
+const LINKEDIN_URL = 'https://www.linkedin.com';
 chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
 
   // wait until we have fully loaded the site
@@ -25,10 +25,9 @@ chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
         tabId,
         enabled: false
       });
-      // TODO. FIGURE OUT HOW TO CLOSE THE SIDE PANEL AUTOMATICALLY WHEN A USER LEAVES LINKEDIN. 
-      window.close();
     }
   } catch (error) {
     console.error('Error in side panel handler:', error);
   }
 });
+
