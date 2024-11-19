@@ -26,6 +26,18 @@
           height: 100px;
         }
 
+        .resumeUploadedNot {
+          margin-top: 8px;
+          font-size: 12px;
+          color: #d31616;
+        }
+
+        .resumeUploaded {
+          margin-top: 8px;
+          font-size: 12px;
+          color: #24db1a;
+        }
+
         h1 {
             color: #333;
             font-size: 24px;
@@ -40,10 +52,10 @@
 </head>
 <body>
 
-    <div class="resumeUploadedStatus">
+    <div class="resumeUploadedNot" id="resumeUploadedStatus">
       Resume status: not uploaded
     </div>
-    <input type="file", id="resumeFile" name="resumeFile" accept=".txt,.doc.docx">
+    <input type="file" id="resumeFile" name="resumeFile" accept=".txt,.doc.docx">
 
     <div class="container">
         <h1>Suggested CV for this job</h1>
