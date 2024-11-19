@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         
         await chrome.sidePanel.open({ tabId: tab.id });
+
+        chrome.tabs.create({url: "https://linkedin.com"});
         
       } catch (error) {
         console.error('Error opening side panel:', error);
