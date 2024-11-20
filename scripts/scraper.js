@@ -38,7 +38,7 @@ const observer = new MutationObserver(async (mutations, obs) => {
     console.log("URL changed, resetting data...");
     console.log("Old URL: ", currentUrl);
     console.log("New URL: ", grabURL());
-    resetData();
+    await resetData();
     currentUrl = grabURL();
   }
 
@@ -48,7 +48,7 @@ const observer = new MutationObserver(async (mutations, obs) => {
     // title is in the aria-label attribute
     if (!jobTitle) {
       jobTitle = parseHTML(getJobTitleElement(jobContainer));
-      console.log("Grabbed job title: ", jobTitle);
+      //console.log("Grabbed job title: ", jobTitle);
       await chrome.storage.local.set({"jobTitle": jobTitle});
 
     }
@@ -61,7 +61,7 @@ const observer = new MutationObserver(async (mutations, obs) => {
         jobInfoElement.innerHTML.includes(JOB_INFO_CLASS) &&
         (jobInfo = parseHTML(jobInfoElement.innerHTML)) !== null
       ) {
-        console.log("Grabbed job info: ", jobInfo);
+        //console.log("Grabbed job info: ", jobInfo);
         await chrome.storage.local.set({"jobInfo": jobInfo});
       } else {
         console.log("Waiting for job info...");
@@ -76,7 +76,7 @@ const observer = new MutationObserver(async (mutations, obs) => {
         jobDescriptionElement.innerHTML.includes(LTR) &&
         (jobDescription = parseHTML(jobDescriptionElement.innerHTML)) !== null
       ) {
-        console.log("Grabbed job description: ", jobDescription);
+        //console.log("Grabbed job description: ", jobDescription);
         await chrome.storage.local.set({"jobDescription": jobDescription});
       } else {
         console.log("Waiting for job description...");
@@ -93,7 +93,7 @@ const observer = new MutationObserver(async (mutations, obs) => {
           companyNameElement &&
           (companyName = parseHTML(companyNameElement.innerHTML)) !== null
         ) {
-          console.log("Grabbed company name: ", companyName);
+          //console.log("Grabbed company name: ", companyName);
           await chrome.storage.local.set({"companyName": companyName});
         } else {
           console.log("Waiting for company name...");
@@ -107,7 +107,7 @@ const observer = new MutationObserver(async (mutations, obs) => {
           companyInfoElement &&
           (companyInfo = parseHTML(companyInfoElement.innerHTML)) !== null
         ) {
-          console.log("Grabbed company info: ", companyInfo);
+          //console.log("Grabbed company info: ", companyInfo);
           await chrome.storage.local.set({"companyInfo": companyInfo});
         } else {
           console.log("Waiting for company info...");
@@ -124,7 +124,7 @@ const observer = new MutationObserver(async (mutations, obs) => {
             companyDescriptionElement.innerHTML
           )) !== null
         ) {
-          console.log("Grabbed company description: ", companyDescription);
+          //console.log("Grabbed company description: ", companyDescription);
           await chrome.storage.local.set({"companyDescription": companyDescription});
         } else {
           console.log("Waiting for company description...");
@@ -143,6 +143,7 @@ const observer = new MutationObserver(async (mutations, obs) => {
     companyInfo &&
     companyDescription
   ) {
+    // log data (for devs)
     console.log("Grabbed all job details!");
     console.log("Job Title: ", jobTitle);
     console.log("Job Info: ", jobInfo);
@@ -150,7 +151,13 @@ const observer = new MutationObserver(async (mutations, obs) => {
     console.log("Company Name: ", companyName);
     console.log("Company Info: ", companyInfo);
     console.log("Company Description: ", companyDescription);
+
+    // grabbed all data yay
     dataGrabbed = true;
+
+    // store the data
+    await storeData();
+    
   } else if (!dataGrabbed) {
     console.log("Waiting for site data...");
   }
@@ -188,7 +195,18 @@ function getCompanyDescriptionElement(companyContainer) {
   return companyContainer.querySelector(COMPANY_DESCRIPTION);
 }
 
-function resetData() {
+async function storeData() {
+  await chrome.storage.local.set({ "jobTitle": jobTitle });
+  await chrome.storage.local.set({ "jobInfo": jobInfo });
+  await chrome.storage.local.set({ "jobDescription": jobDescription });
+  await chrome.storage.local.set({ "companyName": companyName });
+  await chrome.storage.local.set({ "companyInfo": companyInfo });
+  await chrome.storage.local.set({ "companyDescription": companyDescription });
+  await chrome.storage.local.set({ "dataGrabbed": dataGrabbed });
+}
+
+async function resetData() {
+  dataGrabbed = false;
   jobContainer = null;
   jobTitle = null;
   jobInfo = null;
@@ -198,6 +216,7 @@ function resetData() {
   companyInfo = null;
   companyDescription = null;
   dataGrabbed = false;
+  await chrome.storage.local.set({ "dataGrabbed": dataGrabbed });
 }
 
 function observePage() {
@@ -212,9 +231,13 @@ function grabURL() {
 }
 
 function parseHTML(html) {
-  const doc = parser.parseFromString(html, "text/html");
+  // remove line breaks
+  const cleanedHTML = html.replace(/(\r\n|\n|\r)/g, ' ');
+  const doc = parser.parseFromString(cleanedHTML, "text/html");
   const text = doc.body.textContent.trim();
-  return text;
+  // ensure everything is ASCII
+  const asciiText = text.replace(/[^\x00-\x7F]/g, "");
+  return asciiText;
 }
 
 // wait for the page to fully load before observing
