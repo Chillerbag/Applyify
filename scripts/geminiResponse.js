@@ -73,7 +73,9 @@ async function promptGemini(jobDetails) {
     console.log(`the resume object is ${resume_obj}`);
     console.log(`the resume text is: ${resume_text}`)
     const resume_prompt = `update the following resume to fit the needs of the current job. ${resume_text}`;
-    await geminiRewriterHandler(resume_prompt, context, rewriter, resume_target);
+
+    // todo, migrate to rewriter eventually
+    await geminiWriterHandler(resume_prompt, context, writer, resume_target);
   } else {
     resume_target.innerHTML = "please upload your resume to use this feature!";
   }
