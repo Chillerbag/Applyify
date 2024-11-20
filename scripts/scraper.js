@@ -208,7 +208,7 @@ async function resetData() {
   companyInfo = null;
   companyDescription = null;
   dataGrabbed = false;
-  await chrome.storage.local.set({ dataGrabbed: dataGrabbed });
+  await chrome.storage.local.set({ dataGrabbed: false });
 }
 
 function observePage() {
