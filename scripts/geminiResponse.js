@@ -80,25 +80,33 @@ async function promptGemini() {
   console.log("gemini done!");
   // clear storage
   await chrome.storage.local.clear();
+
 }
 
 // FIXME: best practice to store variables in storage like this? in future want to treat scraper like api instead
 async function checkStorage(variable, has_timeout = true, timeout = TIME_OUT) {
-  const { test, varGrabbed } = await chrome.storage.local.get(`${variable}`);
+  const value = await chrome.storage.local.get(variable);
+  let grabSuccess = value.dataGrabbed;
+  console.log(grabSuccess);
   // wait for variable data to be grabbed from storage if not grabbed yet
-  while (!varGrabbed) {
+
+  // TODO: fix this 
+  while (!grabSuccess) {
     if (has_timeout) {
       await new Promise((resolve) => setTimeout(resolve, timeout));
     }
-    const { newVarGrabbed } = await chrome.storage.local.get(`${variable}`);
-    if (newVarGrabbed) {
-      varGrabbed = newVarGrabbed;
+    const newVarGrabbed = await chrome.storage.local.get(variable);
+    const newGrabSuccess = newVarGrabbed.dataGrabbed;
+    console.log(newGrabSuccess);
+    if (newGrabSuccess) {
+        grabSuccess = newGrabSuccess;
+      console.log(`vargrabbed: ${grabSuccess}`);
     }
   }
-  if (!varGrabbed) {
+  if (!grabSuccess) {
     throw new Error(`Could not grab ${variable} from storage`);
   }
-  return varGrabbed;
+  return grabSuccess;
 }
 
 async function grabFromStorage(variable) {
