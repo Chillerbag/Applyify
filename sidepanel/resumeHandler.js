@@ -3,9 +3,10 @@ var reader = new FileReader();
 
 // check on load if we have a resume stored, and if we do, change the content to acknowledge that.
 document.addEventListener("DOMContentLoaded", async () => {
-  if ((resume = await chrome.storage.local.get(["resume"]))) {
+  const storedData = await chrome.storage.local.get(["resume"]);
+  if (storedData.resume && Object.keys(storedData.resume).length > 0) {
     console.log("resume uploaded!");
-    console.log("resume: ", resume);
+    console.log("resume: ", storedData.resume);
     await resumeUploadedChange();
   }
 });
