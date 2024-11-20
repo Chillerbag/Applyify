@@ -42,15 +42,14 @@ async function promptGemini() {
     // this is probably super error prone, so we should error handle here!!
     let writer = await writerModelSetup();
 
-    // grab job details
-    const {
-      jobTitle,
-      jobInfo,
-      jobDescription,
-      companyName,
-      companyInfo,
-      companyDescription,
-    } = await grabJobDetails();
+    // grab job details from storage
+    let jobTitle = jobInfo = jobDescription = companyName = companyInfo = companyDescription = "";
+    jobTitle = await grabFromStorage("jobTitle");
+    jobInfo = await grabFromStorage("jobInfo");
+    jobDescription = await grabFromStorage("jobDescription");
+    companyName = await grabFromStorage("companyName");
+    companyInfo = await grabFromStorage("companyInfo");
+    companyDescription = await grabFromStorage("companyDescription");
 
     //TODO: THESE SHOULD RUN SIMULTANEOUS? not sure if possible - gemini running locally, so only one instance allowed?
     let cv_context = `The job title is ${jobTitle} at ${companyName}. The job info is ${jobInfo}, and the description is ${jobDescription}. Its important to also include what the company stands for. Here's the company description: ${companyDescription}`;
@@ -102,28 +101,13 @@ async function checkStorage(variable, has_timeout = true, timeout = TIME_OUT) {
   return varGrabbed;
 }
 
-async function grabJobDetails() {
-  const field_arr = [
-    "jobTitle",
-    "jobInfo",
-    "jobDescription",
-    "companyName",
-    "companyInfo",
-    "companyDescription",
-  ];
-  const job_details = {};
-  // grab each field from storage
-  const promises = field_arr.map((field) =>
-    chrome.storage.local.get(field).then((result) => {
-      if (result[field]) {
-        job_details[field] = result[field];
-      } else {
-        throw new Error(`Missing field: ${field}`);
-      }
-    })
-  );
-  await Promise.all(promises);
-  return job_details;
+async function grabFromStorage(variable) {
+  const result = await chrome.storage.local.get(variable);
+  if (result[variable]) {
+    return result[variable];
+  } else {
+    throw new Error(`Missing variable: ${variable}`);
+  }
 }
 
 async function writerModelSetup() {
@@ -148,9 +132,9 @@ async function geminiWriterHandler(prompt, context, writer, target) {
   let response = "";
   for await (const chunk of stream) {
     response = chunk;
+    target.innerHTML = response;
   }
   console.log(`response: ${response}`);
-  target.innerHTML = response;
 }
 
 
