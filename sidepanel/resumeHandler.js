@@ -13,10 +13,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // on input, trigger a file load.
 fileInput.addEventListener("input", () => {
-  const file = document.getElementById("resumeFile").files[0];
-  if (file) {
-    reader.readAsText(file, "UTF-8");
-  }
+    try {
+        const file = document.getElementById("resumeFile").files[0];
+        if (file) {
+            reader.readAsText(file, "UTF-8");
+        }
+    } catch (error) {
+        errorBoxCreator("body", error)
+    }
 });
 
 // on load, send to local storage and update upload status text.
@@ -33,3 +37,37 @@ async function resumeUploadedChange() {
   resumeStatusMsg.className = "resumeUploaded";
   await chrome.storage.local.set({ resumeUploaded: true });
 }
+
+
+async function permitResumeGeminiUpdating() { 
+    const resumeAllowed = new Event("resumeAvaliable");
+    document.dispatchEvent(resumeAllowed);
+
+}
+
+
+
+// TODO: THIS IS DUPLICATE CODE, FIGURE OUT HOW WE CAN ACCESS IT WITHOUT CHROME CRYING OVER SECURITY!
+function errorBoxCreator(target, errorMsg) { 
+    // Creating a div element
+    var errorDiv = document.createElement("Div");
+    errorDiv.id = "errorBox";
+  
+    // Styling it
+    errorDiv.style.textAlign = "left";
+    errorDiv.style.fontWeight = "bold";
+    errorDiv.style.fontSize = "smaller";
+    errorDiv.style.paddingTop = "15px";
+    errorDiv.style.color = "lightred";
+  
+    // Adding a paragraph to it
+    var paragraph = document.createElement("P");
+    var text = document.createTextNode(`error encountered: ${errorMsg}`);
+    paragraph.appendChild(text);
+    divElement.appendChild(paragraph);
+  
+    // Appending the div element to the target
+    document.getElementsByTagName(target)[0].appendChild(divElement);
+  
+  
+  }
