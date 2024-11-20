@@ -3,11 +3,16 @@ var reader = new FileReader();
 
 // check on load if we have a resume stored, and if we do, change the content to acknowledge that.
 document.addEventListener("DOMContentLoaded", async () => {
-  const storedData = await chrome.storage.local.get(["resume"]);
-  if (storedData.resume && Object.keys(storedData.resume).length > 0) {
-    console.log("resume uploaded!");
-    console.log("resume: ", storedData.resume);
-    await resumeUploadedChange();
+  try {
+    const storedData = await chrome.storage.local.get(["resume"]);
+    if (storedData.resume && Object.keys(storedData.resume).length > 0) {
+        console.log("resume uploaded!");
+        console.log("resume: ", storedData.resume);
+        await resumeUploadedChange();
+        permitResumeGeminiUpdating();
+    }
+  } catch {
+    errorBoxCreator("body", error);
   }
 });
 
@@ -19,16 +24,21 @@ fileInput.addEventListener("input", () => {
             reader.readAsText(file, "UTF-8");
         }
     } catch (error) {
-        errorBoxCreator("body", error)
+        errorBoxCreator("body", error);
     }
 });
 
 // on load, send to local storage and update upload status text.
 reader.addEventListener("load", () => {
-  resumeRead = reader.result;
-  chrome.storage.local.set({ resume: resumeRead }).then(() => {
-    resumeUploadedChange();
-  });
+    try {
+        resumeRead = reader.result;
+        chrome.storage.local.set({ resume: resumeRead }).then(() => {
+            resumeUploadedChange();
+            permitResumeGeminiUpdating();
+        });
+    } catch {
+        errorBoxCreator("body", error);
+    }
 });
 
 async function resumeUploadedChange() {
@@ -42,10 +52,7 @@ async function resumeUploadedChange() {
 async function permitResumeGeminiUpdating() { 
     const resumeAllowed = new Event("resumeAvaliable");
     document.dispatchEvent(resumeAllowed);
-
 }
-
-
 
 // TODO: THIS IS DUPLICATE CODE, FIGURE OUT HOW WE CAN ACCESS IT WITHOUT CHROME CRYING OVER SECURITY!
 function errorBoxCreator(target, errorMsg) { 
@@ -68,6 +75,4 @@ function errorBoxCreator(target, errorMsg) {
   
     // Appending the div element to the target
     document.getElementsByTagName(target)[0].appendChild(divElement);
-  
-  
-  }
+}

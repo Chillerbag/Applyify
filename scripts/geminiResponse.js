@@ -30,57 +30,28 @@ Sincerely,
 const cv_target = document.getElementById("CVContent");
 const skills_target = document.getElementById("skillChecklist");
 
-async function promptGemini() {
-  console.log("checking storage...");
-  const dataGrabbed = checkStorage("dataGrabbed");
+async function promptGemini(jobDetails) {
   // TODO: feed resume into gemini as well
   //const resumeUploaded = checkStorage("resumeUploaded", false);
 
-  if (dataGrabbed) {
-    console.log("job data grabbed!");
-    console.log("booting up gemini...");
-    // this is probably super error prone, so we should error handle here!!
-    let writer = await writerModelSetup();
+  console.log("booting up gemini...");
+  // this is probably super error prone, so we should error handle here!!
+  let writer = await writerModelSetup();
+  let context = `Job details: ${jobDetails}`;
 
-    // grab job details from storage
-    let jobTitle = jobInfo = jobDescription = companyName = companyInfo = companyDescription = "";
-    jobTitle = await grabFromStorage("jobTitle");
-    jobInfo = await grabFromStorage("jobInfo");
-    jobDescription = await grabFromStorage("jobDescription");
-    companyName = await grabFromStorage("companyName");
-    companyInfo = await grabFromStorage("companyInfo");
-    companyDescription = await grabFromStorage("companyDescription");
-
-    //TODO: THESE SHOULD RUN SIMULTANEOUS? not sure if possible - gemini running locally, so only one instance allowed?
-    let cv_context = `The job title is ${jobTitle} at ${companyName}. The job info is ${jobInfo}, and the description is ${jobDescription}. Its important to also include what the company stands for. Here's the company description: ${companyDescription}`;
-    // make cv suggestion
-    await geminiWriterHandler(
-      CV_TEMPLATE,
-      cv_context,
-      writer,
-      cv_target
-    );
-
-    // make skill checklist
-    let skills_prompt = `Write the list of skills required for this job.`;
-    let skills_context = `The job title is ${jobTitle}, the job info is ${jobInfo}, and the job description is ${jobDescription}.`;
-    await geminiWriterHandler(
-      skills_prompt,
-      skills_context,
-      writer,
-      skills_target
-    );
-  } else {
-    // throw error, not enough job info
-    // we should probably display this in some form of textbox.
-    throw new Error(
-      `Timeout: could not grab all job details in ${TIME_OUT} milliseconds`
-    );
-  }
+  //TODO: THESE SHOULD RUN SIMULTANEOUS? not sure if possible - gemini running locally, so only one instance allowed?
+  // make cv suggestion
+  await geminiWriterHandler(CV_TEMPLATE, context, writer, cv_target);
+  
+  // make skill checklist
+  let skills_prompt = `Write the list of skills required for this job.`;
+  await geminiWriterHandler(
+    skills_prompt,
+    context,
+    writer,
+    skills_target
+  );
   console.log("gemini done!");
-  // clear storage
-  await chrome.storage.local.clear();
-
 }
 
 // FIXME: best practice to store variables in storage like this? in future want to treat scraper like api instead
@@ -90,7 +61,7 @@ async function checkStorage(variable, has_timeout = true, timeout = TIME_OUT) {
   console.log(grabSuccess);
   // wait for variable data to be grabbed from storage if not grabbed yet
 
-  // TODO: fix this 
+  // TODO: fix this
   while (!grabSuccess) {
     if (has_timeout) {
       await new Promise((resolve) => setTimeout(resolve, timeout));
@@ -99,7 +70,7 @@ async function checkStorage(variable, has_timeout = true, timeout = TIME_OUT) {
     const newGrabSuccess = newVarGrabbed.dataGrabbed;
     console.log(newGrabSuccess);
     if (newGrabSuccess) {
-        grabSuccess = newGrabSuccess;
+      grabSuccess = newGrabSuccess;
       console.log(`vargrabbed: ${grabSuccess}`);
     }
   }
@@ -120,9 +91,9 @@ async function grabFromStorage(variable) {
 
 async function writerModelSetup() {
   const writer = await ai.writer.create({
-    tone: "formal"
+    tone: "formal",
   });
-  
+
   // TODO: await ai.writer.create({
   // sharedContext: [input resume here?]
   //});
@@ -144,7 +115,6 @@ async function geminiWriterHandler(prompt, context, writer, target) {
   }
   console.log(`response: ${response}`);
 }
-
 
 // wait for the page to fully load before prompting gemini
 window.addEventListener("load", function () {
