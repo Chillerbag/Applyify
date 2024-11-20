@@ -29,17 +29,27 @@ Sincerely,
 
 const cv_target = document.getElementById("CVContent");
 const skills_target = document.getElementById("skillChecklist");
+const resume_target = document.getElementById("resumeContent");
+var resumeAvaliable = false;
+
+document.addEventListener("resumeAvaliable", () => {
+  resumeAvaliable = true;
+});
+
+chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+  if (message.type === 'processJobDetails') {
+    await promptGemini(message.jobDetails);
+  }
+});
 
 async function promptGemini(jobDetails) {
-  // TODO: feed resume into gemini as well
-  //const resumeUploaded = checkStorage("resumeUploaded", false);
-
   console.log("booting up gemini...");
   // this is probably super error prone, so we should error handle here!!
   let writer = await writerModelSetup();
   let context = `Job details: ${jobDetails}`;
 
   //TODO: THESE SHOULD RUN SIMULTANEOUS? not sure if possible - gemini running locally, so only one instance allowed?
+
   // make cv suggestion
   await geminiWriterHandler(CV_TEMPLATE, context, writer, cv_target);
   
@@ -52,6 +62,21 @@ async function promptGemini(jobDetails) {
     skills_target
   );
   console.log("gemini done!");
+
+
+
+  // make resume suggestions
+  if (resumeAvaliable) {
+    let rewriter = await rewriterModelSetup();
+    const resume_obj = await chrome.storage.local.get(["resume"]);
+    const resume_text = resume_obj.resume;
+    console.log(`the resume object is ${resume_obj}`);
+    console.log(`the resume text is: ${resume_text}`)
+    const resume_prompt = `update the following resume to fit the needs of the current job. ${resume_text}`;
+    await geminiRewriterHandler(resume_prompt, context, rewriter, resume_target);
+  } else {
+    resume_target.innerHTML = "please upload your resume to use this feature!";
+  }
 }
 
 // FIXME: best practice to store variables in storage like this? in future want to treat scraper like api instead
@@ -100,6 +125,15 @@ async function writerModelSetup() {
   return writer;
 }
 
+async function rewriterModelSetup() {
+  const rewriter = await ai.rewriter.create();
+
+  // TODO: await ai.writer.create({
+  // sharedContext: [input resume here?]
+  //});
+  return rewriter;
+}
+
 async function geminiWriterHandler(prompt, context, writer, target) {
   console.log(`prompt: ${prompt}`);
   console.log(`context: ${context}`);
@@ -107,6 +141,20 @@ async function geminiWriterHandler(prompt, context, writer, target) {
   const stream = await writer.writeStreaming(prompt, {
     context: context,
   });
+
+  let response = "";
+  for await (const chunk of stream) {
+    response = chunk;
+    target.innerHTML = response;
+  }
+  console.log(`response: ${response}`);
+}
+
+async function geminiRewriterHandler(prompt, context, rewriter, target) {
+  console.log(`prompt: ${prompt}`);
+  console.log(`context: ${context}`);
+  // todo, wait for google to fix? 
+  const stream = await rewriter.rewriteStreaming(prompt);
 
   let response = "";
   for await (const chunk of stream) {
