@@ -26,6 +26,18 @@
           height: 100px;
         }
 
+        .resumeUploadedNot {
+          margin-top: 8px;
+          font-size: 12px;
+          color: #d31616;
+        }
+
+        .resumeUploaded {
+          margin-top: 8px;
+          font-size: 12px;
+          color: #086b22;
+        }
+
         h1 {
             color: #333;
             font-size: 24px;
@@ -40,29 +52,30 @@
 </head>
 <body>
 
+    <div class="resumeUploadedNot" id="resumeUploadedStatus">
+      Resume status: not uploaded
+    </div>
+    <input type="file" id="resumeFile" name="resumeFile" accept=".txt,.doc.docx">
+
     <div class="container">
         <h1>Suggested CV for this job</h1>
         <div class = "textbox" id="CVContent">
-            <p> the content of the cv reccomendation can go here</p>
-            <p> we should probably have a button to refresh? like reprompt gemini if this is bad.</p>
         </div>
     </div>
 
     <div class="container">
       <h1>Suggested Resume Updates for this Job</h1>
       <div class ="textbox" id="resumeContent">
-          <p>Here gemini will give us a list of suggested changes to match this job</p>
       </div>
     </div>
 
     <div class="container">
       <h1>Skill Checklist</h1>
       <div class ="textbox" id="skillChecklist">
-          <p>Here we can have like a checklist of skills you should have for this job that gemini parses out.</p>
       </div>
     </div>
 
-
-    <script src="scripts/siteEnabled.js"></script>
+    <script src="../scripts/geminiResponse.js"></script>
+    <script src="resumeHandler.js"></script>
 </body>
 </html>
