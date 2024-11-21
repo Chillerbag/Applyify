@@ -53,7 +53,7 @@ async function parseWebpage(html_class, isDynamic, ...html_dynamic) {
     dataGrabbed = true;
 
     chrome.runtime.sendMessage({ 
-      type: 'jobDetailsToBackground',
+      type: 'broadcastJobDetails',
       jobDetails: jobDetails 
     }, function () {
       console.log("Job details sent to service worker");

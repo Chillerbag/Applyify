@@ -11,7 +11,7 @@
   },
   "content_scripts": [
     {
-      "js": ["scripts/scraper.js"],
+      "js": ["scripts/scraper.js", "scripts/utils.js"],
       "matches": [
         "https://www.linkedin.com/jobs/*",
         "https://www.linkedin.com/job/*"
@@ -33,8 +33,5 @@
   },
   "host_permissions": [
     "https://www.linkedin.com/*"
-  ],
-  "background": {
-    "service_worker": "scripts/serviceWorker.js"
-  }
+  ]
 }
