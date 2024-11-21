@@ -169,5 +169,4 @@ window.addEventListener("load", function () {
   console.log("window fully loaded!");
   cv_target.innerHTML = "Loading...";
   skills_target.innerHTML = "Loading...";
-  promptGemini();
 });
