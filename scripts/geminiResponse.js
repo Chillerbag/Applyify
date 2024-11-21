@@ -6,9 +6,7 @@ Last modified: 21/11/2024 by Ethan
 
 // -------------------------------------------------------------------
 //                                 Constants
-// -------------------------------------------------------------------            
-const TIME_OUT = 1000; // 1000 milliseconds
-
+// -------------------------------------------------------------------
 const CV_TEMPLATE = `
 Write an excellent cover letter. Here is the template:
 
@@ -41,15 +39,29 @@ Sincerely,
 const cv_target = document.getElementById("CVContent");
 const skills_target = document.getElementById("skillChecklist");
 const resume_target = document.getElementById("resumeContent");
-const gemini_retry_button = document.getElementById("geminiRetry")
+const targets = [cv_target, skills_target, resume_target];
+
+// writer and rewriter should be constants we populate on document load.
+let writer = null;
+let rewriter = null;
 
 // flags for executing certain things
-var resumeAvaliable = false;
-var retryObject = null;
+let resumeAvaliable = false;
 
 // -------------------------------------------------------------------
 //                                 Listeners
 // -------------------------------------------------------------------
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    writer = await writerModelSetup();
+    rewriter = await writerModelSetup();
+  } catch (error) {
+    for (const target of targets) {
+      target.innerHTML = `<span style='color: red;'>**error! Gemini is not availiable to you yet. please check your install of Gemini and try again.</span>`;
+    }
+  }
+});
 
 // check if a resume has been uploaded, if so, we can do the resume updates.
 document.addEventListener("resumeAvaliable", () => {
@@ -64,13 +76,13 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 });
 
 // wait for the page to fully load before prompting gemini.
-window.addEventListener("load", function () {
-  cv_target.innerHTML = "Loading...";
-  skills_target.innerHTML = "Loading...";
-  promptGemini();
+window.addEventListener("load", async function () {
+  for (const target of targets) {
+    target.innerHTML = "Loading...";
+  }
 });
 
-// check if gemini got stuck
+// check if gemini got stuck.
 document.addEventListener("geminiFailed", (data) => {
 
   const prompt = data.detail.prompt;
@@ -85,8 +97,6 @@ document.addEventListener("geminiFailed", (data) => {
 //                             Gemini functions
 // -------------------------------------------------------------------
 async function promptGemini(jobDetails) {
-
-  let writer = await writerModelSetup(); // TODO: error handle here, we need to let the user know they dont have gemini
   let context = `Job details: ${jobDetails}`;
   let skills_prompt = `Write the list of skills required for this job.`;
 
@@ -98,28 +108,20 @@ async function promptGemini(jobDetails) {
     const resume_obj = await chrome.storage.local.get(["resume"]);
     const resume_text = resume_obj.resume;
     const resume_prompt = `update the following resume to fit the needs of the current job. Say specifically what was updated: ${resume_text}`;
-    await geminiWriterHandler(resume_prompt, context, writer, resume_target); 
+    await geminiWriterHandler(resume_prompt, context, writer, resume_target);      // writer is now globally scoped to this file. FIXME: POINTLESS REFERENCE PASSING
   } else {
     resume_target.innerHTML = "please upload your resume to use this feature!";
   }
 }
 
 async function writerModelSetup() {
-  const writer = await ai.writer.create({
+  return await ai.writer.create({
     tone: "formal",
   });
-  // TODO: await ai.writer.create({
-  // sharedContext: [input resume here?]
-  //});
-  return writer;
 }
 
 async function rewriterModelSetup() {
-  const rewriter = await ai.rewriter.create();
-  // TODO: await ai.writer.create({
-  // sharedContext: [input resume here?]
-  //});
-  return rewriter;
+  return await ai.rewriter.create(); //TODO SPEC THIS FURTHER
 }
 
 async function geminiWriterHandler(prompt, context, writer, target) {
