@@ -37,7 +37,7 @@ document.addEventListener("resumeAvaliable", () => {
 });
 
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
-  if (message.type === 'processJobDetails') {
+  if (message.type === 'broadcastJobDetails') {
     await promptGemini(message.jobDetails);
   }
 });

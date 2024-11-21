@@ -33,8 +33,5 @@
   },
   "host_permissions": [
     "https://www.linkedin.com/*"
-  ],
-  "background": {
-    "service_worker": "scripts/serviceWorker.js"
-  }
+  ]
 }
