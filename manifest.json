@@ -14,7 +14,9 @@
       "js": ["scripts/scraper.js"],
       "matches": [
         "https://www.linkedin.com/jobs/*",
-        "https://www.linkedin.com/job/*"
+        "https://www.linkedin.com/job/*",
+        "https://www.seek.com.au/job/*",
+        "https://au.indeed.com/*"
       ],
       "run_at": "document_idle"
     }
@@ -32,7 +34,9 @@
     "default_path": "sidepanel/sidePanel.html"
   },
   "host_permissions": [
-    "https://www.linkedin.com/*"
+    "https://www.linkedin.com/*",
+    "https://www.seek.com.au/*",
+    "https://au.indeed.com/*"
   ],
   "background": {
     "service_worker": "scripts/serviceWorker.js"
