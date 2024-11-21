@@ -136,21 +136,29 @@ async function rewriterModelSetup() {
   return rewriter;
 }
 
+
+// this is risky, so we should probably try and display the error, within the target,
 async function geminiWriterHandler(prompt, context, writer, target) {
   console.log(`prompt: ${prompt}`);
   console.log(`context: ${context}`);
 
-  const stream = await writer.writeStreaming(prompt, {
-    context: context,
-  });
+  try {
+    const stream = await writer.writeStreaming(prompt, {
+      context: context,
+    });
 
-  let response = "";
-  for await (const chunk of stream) {
-    response = chunk;
-    target.innerHTML = response;
+    let response = "";
+    for await (const chunk of stream) {
+      response = chunk;
+      target.innerHTML = response;
+    }
+    console.log(`response: ${response}`);
+  } catch (error) { 
+    console.log(error)
+    target.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
   }
-  console.log(`response: ${response}`);
 }
+
 
 async function geminiRewriterHandler(prompt, context, rewriter, target) {
   console.log(`prompt: ${prompt}`);
