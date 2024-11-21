@@ -170,21 +170,6 @@ async function geminiWriterHandler(prompt, context, writer, target) {
   }
 }
 
-
-async function geminiRewriterHandler(prompt, context, rewriter, target) {
-  console.log(`prompt: ${prompt}`);
-  console.log(`context: ${context}`);
-  // todo, wait for google to fix? 
-  const stream = await rewriter.rewriteStreaming(prompt);
-
-  let response = "";
-  for await (const chunk of stream) {
-    response = chunk;
-    target.innerHTML = response;
-  }
-  console.log(`response: ${response}`);
-}
-
 // wait for the page to fully load before prompting gemini
 window.addEventListener("load", function () {
   console.log("window fully loaded!");
@@ -222,4 +207,20 @@ function createRetryButton(target, prompt, context, writer) {
     // Append the retry button beneath the target container
     target.appendChild(retryButton);
   }
+}
+
+
+// TODO: if google doesnt finish this soon, lets delete it and go with the writer. 
+async function geminiRewriterHandler(prompt, context, rewriter, target) {
+  console.log(`prompt: ${prompt}`);
+  console.log(`context: ${context}`);
+  // todo, wait for google to fix? 
+  const stream = await rewriter.rewriteStreaming(prompt);
+
+  let response = "";
+  for await (const chunk of stream) {
+    response = chunk;
+    target.innerHTML = response;
+  }
+  console.log(`response: ${response}`);
 }
