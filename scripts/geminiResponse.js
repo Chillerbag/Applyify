@@ -30,7 +30,9 @@ Sincerely,
 const cv_target = document.getElementById("CVContent");
 const skills_target = document.getElementById("skillChecklist");
 const resume_target = document.getElementById("resumeContent");
+const gemini_retry_button = document.getElementById("geminiRetry")
 var resumeAvaliable = false;
+var retryObject = null;
 
 document.addEventListener("resumeAvaliable", () => {
   resumeAvaliable = true;
@@ -156,6 +158,15 @@ async function geminiWriterHandler(prompt, context, writer, target) {
   } catch (error) { 
     console.log(error)
     target.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
+    const geminiFailed = new CustomEvent("geminiFailed", {
+      detail: {
+        prompt: prompt,
+        context: context,
+        writer: writer,
+        target: target
+      }
+    });
+    document.dispatchEvent(geminiFailed);
   }
 }
 
@@ -181,3 +192,34 @@ window.addEventListener("load", function () {
   skills_target.innerHTML = "Loading...";
   promptGemini();
 });
+
+
+document.addEventListener("geminiFailed", (data) => {
+
+  const prompt = data.detail.prompt;
+  const context = data.detail.context;
+  const writer = data.detail.writer;
+  const target = data.detail.target;
+
+  createRetryButton(target, prompt, context, writer);
+});
+
+
+
+function createRetryButton(target, prompt, context, writer) {
+
+  if (target) {
+    // Create a new button element
+    const retryButton = document.createElement("button");
+    retryButton.textContent = "Reprompt Gemini";
+    retryButton.classList.add("retry-button");
+
+    // Attach the click event to the button, unsure if it maintains these variables correctly. 
+    retryButton.addEventListener("click", async () => {
+      geminiWriterHandler(prompt, context, writer, target);
+    });
+
+    // Append the retry button beneath the target container
+    target.appendChild(retryButton);
+  }
+}
