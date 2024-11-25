@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (storedData.resume && Object.keys(storedData.resume).length > 0) {
         await resumeUploadedChange();
-        permitResumeGeminiUpdating();
+        await permitResumeGeminiUpdating();
     }
 
   } catch {
@@ -46,9 +46,9 @@ fileInput.addEventListener("input", () => {
 reader.addEventListener("load", () => {
     try {
         resumeRead = reader.result;
-        chrome.storage.local.set({ resume: resumeRead }).then(() => {
-            resumeUploadedChange();
-            permitResumeGeminiUpdating();
+        chrome.storage.local.set({ resume: resumeRead }).then(async () => {
+            await resumeUploadedChange();
+            await permitResumeGeminiUpdating();
         });
     } catch {
         errorBoxCreator("body", error);

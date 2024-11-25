@@ -169,7 +169,7 @@ function createRetryButton(target, prompt, context, writer) {
     retryButton.classList.add("retry-button");
 
     retryButton.addEventListener("click", async () => {
-      geminiWriterHandler(prompt, context, writer, target);
+      await geminiWriterHandler(prompt, context, writer, target);
     });
     
     target.appendChild(retryButton); // Append the retry button in container. TODO: this should go somewhere else
