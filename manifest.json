@@ -15,7 +15,7 @@
       "matches": [
         "https://www.linkedin.com/jobs/*",
         "https://www.linkedin.com/job/*",
-        "https://www.seek.com.au/job/*",
+        "https://www.seek.com.au/*",
         "https://au.indeed.com/*"
       ],
       "run_at": "document_idle"
