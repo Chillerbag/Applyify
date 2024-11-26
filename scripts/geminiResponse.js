@@ -160,7 +160,12 @@ async function geminiRewriterHandler(prompt, context, rewriter, target) {
     target.innerHTML = response;
   }
 }
-
+// wait for the page to fully load before prompting gemini
+window.addEventListener("load", function () {
+  console.log("window fully loaded!");
+  cv_target.innerHTML = "Loading...";
+  skills_target.innerHTML = "Loading...";
+});
 // -------------------------------------------------------------------
 //                             Helper functions
 // -------------------------------------------------------------------
