@@ -101,15 +101,16 @@ async function promptGemini(jobDetails) {
   let context = `Job details: ${jobDetails}`;
   let skills_prompt = `Write the list of skills required for this job.`;
 
-  // await geminiWriterHandler(CV_TEMPLATE, context, writer, cv_target);   // make cv suggestion
-  // await geminiWriterHandler(skills_prompt, context, writer, skills_target);   // make skills list
+  await geminiWriterHandler(CV_TEMPLATE, context, writer, cv_target);   // make cv suggestion
+  await geminiWriterHandler(skills_prompt, context, writer, skills_target);   // make skills list
 
   if (resumeAvaliable) {
     //let rewriter = await rewriterModelSetup();   // this isnt fully implemented yet by google, fix later.
+    let resume_model = await promptModelSetup();
     const resume_obj = await chrome.storage.local.get(["resume"]);
     const resume_text = resume_obj.resume;
-    const resume_prompt = `update the following resume to fit the needs of the current job. Say specifically what was updated: ${resume_text}`;
-    await geminiWriterHandler(resume_prompt, context, writer, resume_target); // writer is now globally scoped to this file. FIXME: POINTLESS REFERENCE PASSING
+    const resume_prompt = `State "[RESUME]", then rewrite the resume to fit the job description. Only use information from the resume. Afterwards state "[DETAILS]", and state what has been changed in the resume, and why. Resume: ${resume_text} Job advertisement: ${jobDetails}`;
+    await geminiPromptHandler(resume_prompt, resume_model, resume_target); // writer is now globally scoped to this file. FIXME: POINTLESS REFERENCE PASSING
   } else {
     resume_target.innerHTML = "please upload your resume to use this feature!";
   }
@@ -119,6 +120,33 @@ async function writerModelSetup() {
   return await ai.writer.create({
     tone: "formal",
   });
+}
+
+async function promptModelSetup() {
+  return await ai.languageModel.create();
+}
+
+async function geminiPromptHandler(prompt, model, target) {
+  try {
+    let response = "";
+    const stream = await model.promptStreaming(prompt);
+    for await (const chunk of stream) {
+      response = chunk;
+      target.innerHTML = response;
+    }
+  } catch (error) {
+    console.error("Gemini failed with error: ", error);
+    console.log("prompt: ", prompt);
+    target.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
+    const geminiFailed = new CustomEvent("geminiFailed", {
+      detail: {
+        prompt: prompt,
+        model: model,
+        target: target,
+      },
+    });
+    document.dispatchEvent(geminiFailed);
+  }
 }
 
 // async function rewriterModelSetup() {
@@ -136,6 +164,8 @@ async function geminiWriterHandler(prompt, context, writer, target) {
       target.innerHTML = response;
     }
   } catch (error) {
+    console.error("Gemini failed with error: ", error);
+    console.log("prompt: ", prompt);
     target.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
     const geminiFailed = new CustomEvent("geminiFailed", {
       detail: {
