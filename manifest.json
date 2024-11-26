@@ -29,7 +29,8 @@
     "sidePanel",
     "storage",
     "tabs",
-    "activeTab"
+    "activeTab",
+    "action"
   ],
   "background": {
     "service_worker": "scripts/serviceWorker.js"

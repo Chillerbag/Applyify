@@ -41,13 +41,8 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         const jobSiteMatch = isJobSitePage(tab.url);
 
         if (jobSiteMatch) {
-            // Store the detection for when user clicks extension icon
-            lastDetectedJobSite = {
-                tabId,
-                site: jobSiteMatch.site,
-                config: jobSiteMatch.config
-            };
 
+            // send out a message to change what happens onclick of the icon
             // Update extension icon to indicate job site detected
             chrome.action.setBadgeText({
                 text: "✓",
@@ -57,28 +52,27 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
                 color: "#4CAF50",
                 tabId: tabId
             });
+            chrome.action.setPopup(
+                {
+                    popup: ''
+                }
+            );
+            chrome.action.onClicked.addListener(async () => {
+                const [tab] = await chrome.tabs.query({active: true, currentWindow: true});
+                await chrome.sidePanel.open({ tabId: tab.id });
+            })
+
         } else {
-            // Reset badge if not on job site
+            // Reset badge if not on job site, and reset popup event
             chrome.action.setBadgeText({
                 text: "",
                 tabId: tabId
             });
-        }
-    }
-});
 
-// Handle extension icon click
-chrome.action.onClicked.addListener(async (tab) => {
-    if (lastDetectedJobSite && lastDetectedJobSite.tabId === tab.id) {
-        try {
-            // Open side panel
-            await chrome.sidePanel.open({ tabId: tab.id });
-            // Set side panel state - could use later for scraper info.
-            await chrome.storage.local.set({
-                currentJobSite: lastDetectedJobSite.site,
+            chrome.action.setPopup(
+            {
+                popup: '/popup/popup.html'
             });
-        } catch (error) {
-            console.error('Error opening side panel:', error);
         }
     }
 });
