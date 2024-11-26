@@ -43,7 +43,7 @@ const targets = [cv_target, skills_target, resume_target];
 
 // writer and rewriter should be constants we populate on document load.
 let writer = null;
-let rewriter = null;
+//let rewriter = null;
 
 // flags for executing certain things
 let resumeAvaliable = false;
@@ -52,10 +52,10 @@ let resumeAvaliable = false;
 //                                 Listeners
 // -------------------------------------------------------------------
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener("DOMContentLoaded", async () => {
   try {
     writer = await writerModelSetup();
-    rewriter = await writerModelSetup();
+    //rewriter = await writerModelSetup();
   } catch (error) {
     for (const target of targets) {
       target.innerHTML = `<span style='color: red;'>**error! Gemini is not availiable to you yet. please check your install of Gemini and try again.</span>`;
@@ -70,7 +70,7 @@ document.addEventListener("resumeAvaliable", () => {
 
 // check if the scraper told us its found a job.
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
-  if (message.type === 'broadcastJobDetails') {
+  if (message.type === "broadcastJobDetails") {
     await promptGemini(message.jobDetails);
   }
 });
@@ -86,7 +86,6 @@ window.addEventListener("load", async function () {
 
 // check if gemini got stuck.
 document.addEventListener("geminiFailed", (data) => {
-
   const prompt = data.detail.prompt;
   const context = data.detail.context;
   const writer = data.detail.writer;
@@ -102,15 +101,15 @@ async function promptGemini(jobDetails) {
   let context = `Job details: ${jobDetails}`;
   let skills_prompt = `Write the list of skills required for this job.`;
 
-  await geminiWriterHandler(CV_TEMPLATE, context, writer, cv_target);   // make cv suggestion 
-  await geminiWriterHandler(skills_prompt, context, writer, skills_target);   // make skills list
+  // await geminiWriterHandler(CV_TEMPLATE, context, writer, cv_target);   // make cv suggestion
+  // await geminiWriterHandler(skills_prompt, context, writer, skills_target);   // make skills list
 
   if (resumeAvaliable) {
-    let rewriter = await rewriterModelSetup();   // this isnt fully implemented yet by google, fix later.
+    //let rewriter = await rewriterModelSetup();   // this isnt fully implemented yet by google, fix later.
     const resume_obj = await chrome.storage.local.get(["resume"]);
     const resume_text = resume_obj.resume;
     const resume_prompt = `update the following resume to fit the needs of the current job. Say specifically what was updated: ${resume_text}`;
-    await geminiWriterHandler(resume_prompt, context, writer, resume_target);      // writer is now globally scoped to this file. FIXME: POINTLESS REFERENCE PASSING
+    await geminiWriterHandler(resume_prompt, context, writer, resume_target); // writer is now globally scoped to this file. FIXME: POINTLESS REFERENCE PASSING
   } else {
     resume_target.innerHTML = "please upload your resume to use this feature!";
   }
@@ -122,9 +121,9 @@ async function writerModelSetup() {
   });
 }
 
-async function rewriterModelSetup() {
-  return await ai.rewriter.create(); //TODO SPEC THIS FURTHER
-}
+// async function rewriterModelSetup() {
+//   return await ai.rewriter.create(); //TODO SPEC THIS FURTHER
+// }
 
 async function geminiWriterHandler(prompt, context, writer, target) {
   try {
@@ -136,30 +135,31 @@ async function geminiWriterHandler(prompt, context, writer, target) {
       response = chunk;
       target.innerHTML = response;
     }
-  } catch (error) { 
+  } catch (error) {
     target.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
     const geminiFailed = new CustomEvent("geminiFailed", {
       detail: {
         prompt: prompt,
         context: context,
         writer: writer,
-        target: target
-      }
+        target: target,
+      },
     });
     document.dispatchEvent(geminiFailed);
   }
 }
 
-// TODO: if google doesnt finish this soon, lets delete it and go with the writer. 
-async function geminiRewriterHandler(prompt, context, rewriter, target) {
-  let response = "";
-  const stream = await rewriter.rewriteStreaming(prompt);   // todo, wait for google to fix? 
+// // TODO: if google doesnt finish this soon, lets delete it and go with the writer.
+// async function geminiRewriterHandler(prompt, context, rewriter, target) {
+//   let response = "";
+//   const stream = await rewriter.rewriteStreaming(prompt);   // todo, wait for google to fix?
 
-  for await (const chunk of stream) {
-    response = chunk;
-    target.innerHTML = response;
-  }
-}
+//   for await (const chunk of stream) {
+//     response = chunk;
+//     target.innerHTML = response;
+//   }
+// }
+
 // wait for the page to fully load before prompting gemini
 window.addEventListener("load", function () {
   console.log("window fully loaded!");
@@ -171,14 +171,14 @@ window.addEventListener("load", function () {
 // -------------------------------------------------------------------
 function createRetryButton(target, prompt, context, writer) {
   if (target) {
-    const retryButton = document.createElement("button");     // Create a new button element
+    const retryButton = document.createElement("button"); // Create a new button element
     retryButton.textContent = "Reprompt Gemini";
     retryButton.classList.add("retry-button");
 
     retryButton.addEventListener("click", async () => {
       await geminiWriterHandler(prompt, context, writer, target);
     });
-    
+
     target.appendChild(retryButton); // Append the retry button in container. TODO: this should go somewhere else
   }
 }
