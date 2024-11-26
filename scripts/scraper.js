@@ -2,6 +2,11 @@ const LINKEDIN_JOB_DETAILS = ".jobs-search__job-details--container";
 const LINKEDIN_DYNAMIC_JOB = "ltr";
 const LINKEDIN_DYNAMIC_COMPANY = "jobs-company__box";
 
+const INDEED_JOB_DETAILS = "#job-full-details";
+const INDEED_DYNAMIC_JOB = "jobDescriptionText";
+
+const SEEK_JOB_DETAILS = "#braid-modal-container";
+
 let currentUrl = null;
 let jobDetails = null;
 let dataGrabbed = false;
@@ -20,13 +25,14 @@ const observer = new MutationObserver(async (mutations, obs) => {
   parseWebpage(html_div, use_dynamic_scraping, dynamic_divs);
 });
 
-async function parseWebpage(html_class, isDynamic, ...html_dynamic) {
-   // refresh job details
+async function parseWebpage(html_class, isDynamic, html_dynamic) {
+  // refresh job details
   jobDetailsElement = document.querySelector(html_class);
+
+  // check all dynamic sections have loaded
   if (jobDetailsElement && isDynamic && html_dynamic.length > 0) {
-    // check all dynamic sections have loaded
     let allSectionsLoaded = false;
-    for (const div of html_dynamic[0]) {
+    for (const div of html_dynamic) {
       if (jobDetailsElement.innerHTML.includes(div)) {
         allSectionsLoaded = true;
       } else {
@@ -34,10 +40,12 @@ async function parseWebpage(html_class, isDynamic, ...html_dynamic) {
         break;
       }
     }
+    // everything loaded yay, parsing time
     if (allSectionsLoaded) {
       jobDetails = parseHTML(jobDetailsElement.innerHTML);
     }
   } else {
+    // no dynamic sections, just parse the job details yay
     if (jobDetailsElement) {
       jobDetails = parseHTML(jobDetailsElement.innerHTML);
     }
@@ -52,12 +60,15 @@ async function parseWebpage(html_class, isDynamic, ...html_dynamic) {
     // grabbed data yay!
     dataGrabbed = true;
 
-    chrome.runtime.sendMessage({ 
-      type: 'jobDetailsToBackground',
-      jobDetails: jobDetails 
-    }, function () {
-      console.log("Job details sent to service worker");
-    });
+    chrome.runtime.sendMessage(
+      {
+        type: "jobDetailsToBackground",
+        jobDetails: jobDetails,
+      },
+      function () {
+        console.log("Job details sent to service worker");
+      }
+    );
   } else if (!dataGrabbed) {
     console.log("Waiting for site data...");
   }
@@ -76,7 +87,17 @@ async function checkUrl() {
       html_div = LINKEDIN_JOB_DETAILS;
       use_dynamic_scraping = true;
       dynamic_divs = [LINKEDIN_DYNAMIC_JOB, LINKEDIN_DYNAMIC_COMPANY];
+    } else if (currentUrl.includes("indeed.com")) {
+      console.log("indeed job page detected!");
+      html_div = INDEED_JOB_DETAILS;
+      use_dynamic_scraping = true;
+      dynamic_divs = [INDEED_DYNAMIC_JOB];
+    } else if (currentUrl.includes("seek.com")) {
+      console.log("seek job page detected!");
+      html_div = SEEK_JOB_DETAILS;
+      use_dynamic_scraping = false;
     }
+
     // TODO: add more sites
   }
 }
@@ -104,12 +125,18 @@ function grabURL() {
 }
 
 function parseHTML(html) {
-  // remove line breaks
+  // remove line breaks + extra spaces + tabs
   let cleanedHTML = html.replace(/(\r\n|\n|\r)/g, " ");
   cleanedHTML = cleanedHTML.replace(/\s+/g, " ");
   cleanedHTML = cleanedHTML.replace(/\t/g, " ");
+
+  // remove inner css
+  cleanedHTML = cleanedHTML.replace(/<style([\s\S]*?)<\/style>/gi, "");
+
+  // parse HTML
   const doc = parser.parseFromString(cleanedHTML, "text/html");
-  const text = doc.body.textContent.trim();
+  let text = doc.body.textContent.trim();
+
   // ensure everything is ASCII
   const asciiText = text.replace(/[^\x00-\x7F]/g, "");
   return asciiText;
