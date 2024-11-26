@@ -11,7 +11,7 @@
   },
   "content_scripts": [
     {
-      "js": ["scripts/scraper.js"],
+      "js": ["scripts/scraper.js", "scripts/utils.js"],
       "matches": [
         "https://www.linkedin.com/jobs/*",
         "https://www.linkedin.com/job/*",
@@ -28,8 +28,12 @@
   "permissions": [
     "sidePanel",
     "storage",
-    "tabs"
+    "tabs",
+    "activeTab"
   ],
+  "background": {
+    "service_worker": "scripts/serviceWorker.js"
+  },
   "side_panel": {
     "default_path": "sidepanel/sidePanel.html"
   },
@@ -37,8 +41,5 @@
     "https://www.linkedin.com/*",
     "https://www.seek.com.au/*",
     "https://au.indeed.com/*"
-  ],
-  "background": {
-    "service_worker": "scripts/serviceWorker.js"
-  }
+  ]
 }

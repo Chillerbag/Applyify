@@ -60,15 +60,12 @@ async function parseWebpage(html_class, isDynamic, html_dynamic) {
     // grabbed data yay!
     dataGrabbed = true;
 
-    chrome.runtime.sendMessage(
-      {
-        type: "jobDetailsToBackground",
-        jobDetails: jobDetails,
-      },
-      function () {
-        console.log("Job details sent to service worker");
-      }
-    );
+    chrome.runtime.sendMessage({ 
+      type: 'broadcastJobDetails',
+      jobDetails: jobDetails 
+    }, function () {
+      console.log("Job details sent to service worker");
+    });
   } else if (!dataGrabbed) {
     console.log("Waiting for site data...");
   }

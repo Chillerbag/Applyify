@@ -1,59 +1,65 @@
-// popup.js
-// handles the buttons and stuff in the popup using a callback function
+/*
+File: popup.js
+Description: the main popup. Handles opening the chosen job site, and opens the sidepanel to that site. Also
+  contains a dropdown that can be used to select a specific job site.
+Last modified: 25/11/2024 by Ethan
+*/
 
-// this is so the scraper can use the storage
-//chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' });
 
+// -------------------------------------------------------------------
+//                              Main EventListener
+// -------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
-    // TODO: ONLY OPEN IF A RESUME IS UPLOADED!
-    const openSidePanelButton = document.getElementById('openSidePanel');
-    const openDropDownButton = document.getElementById('jobDrop');
+  const openSidePanelButton = document.getElementById('openSidePanel');
+  const dropdownButton = document.getElementById('jobDrop');
+  const dropdownContent = document.getElementById('jobSiteDropdown');
 
-    openDropDownButton.addEventListener('click', async () => {
-        var dropdownContent = document.getElementById("jobSiteDropdown");
-        dropdownContent.classList.toggle("show");
-    });
-
-    // handle the button 
-    openSidePanelButton.addEventListener('click', async () => {
-      try {
-
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        
-        await chrome.sidePanel.open({ tabId: tab.id });
-
-        chrome.tabs.create({url: "https://linkedin.com/jobs"});
-        
-      } catch (error) {
-          errorBoxCreator("body", error);
+  // Close dropdown when clicking outside
+  window.addEventListener('click', (event) => {
+    if (!event.target.matches('.dropbtn')) {
+      if (dropdownContent.classList.contains('show')) {
+        dropdownContent.classList.remove('show');
       }
-    });
+    }
   });
 
+  // Toggle dropdown
+  dropdownButton.addEventListener('click', (event) => {
+    event.stopPropagation(); // Prevent window click event from immediately closing dropdown
+    dropdownContent.classList.toggle('show');
+  });
 
+  // Handle job site selection
+  dropdownContent.addEventListener('click', async (event) => {
+    const link = event.target.closest('a');
+    if (!link) return;
 
-  // inserting an error textbox into the div for try catches
+    const site = link.dataset.site;
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    await chrome.sidePanel.open({ tabId: tab.id });
 
-function errorBoxCreator(target, errorMsg) { 
-  // Creating a div element
-  var errorDiv = document.createElement("Div");
-  errorDiv.id = "errorBox";
+    let url;
+    switch(site) {
+      case 'indeed':
+        url = 'https://indeed.com';
+        break;
+      case 'linkedin':
+        url = 'https://linkedin.com/jobs';
+        break;
+      case 'seek':
+        url = 'https://seek.com';
+        break;
+      default:
+        url = 'https://linkedin.com/jobs';
+    }
+    chrome.tabs.create({ url });
+    dropdownContent.classList.remove('show');
+  });
 
-  // Styling it
-  errorDiv.style.textAlign = "left";
-  errorDiv.style.fontWeight = "bold";
-  errorDiv.style.fontSize = "smaller";
-  errorDiv.style.paddingTop = "15px";
-  errorDiv.style.color = "lightred";
-
-  // Adding a paragraph to it
-  var paragraph = document.createElement("P");
-  var text = document.createTextNode(`error encountered: ${errorMsg}`);
-  paragraph.appendChild(text);
-  divElement.appendChild(paragraph);
-
-  // Appending the div element to the target
-  document.getElementsByTagName(target)[0].appendChild(divElement);
-
-
-}
+  // default button. Not sure if we need this anymore with the dropdown
+  openSidePanelButton.addEventListener('click', async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    await chrome.sidePanel.open({ tabId: tab.id });
+    chrome.tabs.create({url: "https://linkedin.com/jobs"});
+  });
+});
