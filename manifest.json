@@ -26,8 +26,12 @@
   "permissions": [
     "sidePanel",
     "storage",
-    "tabs"
+    "tabs",
+    "activeTab"
   ],
+  "background": {
+    "service_worker": "scripts/serviceWorker.js"
+  },
   "side_panel": {
     "default_path": "sidepanel/sidePanel.html"
   },

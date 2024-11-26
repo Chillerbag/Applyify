@@ -76,6 +76,8 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 });
 
 // wait for the page to fully load before prompting gemini.
+// TODO: we need to find some way to stop showing stuff until we know the scraper is scraping the right stuff.
+// maybe this could involve more specific urls? so the scraper doesnt get trigger happy, linkedin.com/jobs may not be good enough
 window.addEventListener("load", async function () {
   for (const target of targets) {
     target.innerHTML = "Loading...";
@@ -169,7 +171,7 @@ function createRetryButton(target, prompt, context, writer) {
     retryButton.classList.add("retry-button");
 
     retryButton.addEventListener("click", async () => {
-      geminiWriterHandler(prompt, context, writer, target);
+      await geminiWriterHandler(prompt, context, writer, target);
     });
     
     target.appendChild(retryButton); // Append the retry button in container. TODO: this should go somewhere else
