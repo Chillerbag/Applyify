@@ -13,8 +13,74 @@ const JOB_SITES = {
     }
 };
 
-// Store the last detected job site
-let lastDetectedJobSite = null;
+chrome.tabs.onActivated.addListener(async () => {
+    let queryOptions = {active: true, lastFocusedWindow: true};
+    let [tab] = await chrome.tabs.query(queryOptions);
+    const tabId = tab.id;
+    if (tab.url) {
+        const jobSiteMatch = isJobSitePage(tab.url);
+        if (jobSiteMatch) {
+            onSiteMatch(tabId);
+
+        } else {
+            enableMainPopup(tabId);
+        }
+    } else {
+        enableMainPopup(tabId);
+    }
+});
+
+
+// Listen for tab updates
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+    if (changeInfo.status === "complete" && tab.url) {
+        const jobSiteMatch = isJobSitePage(tab.url);
+        if (jobSiteMatch) {
+            onSiteMatch(tabId);
+
+        } else {
+            // Reset badge if not on job site, and reset popup event
+            enableMainPopup(tabId);
+        }
+
+    }
+});
+
+function onSiteMatch(tabId) {
+    // send out a message to change what happens onclick of the icon
+    // Update extension icon to indicate job site detected
+    chrome.action.setBadgeText({
+        text: "✓",
+        tabId: tabId
+    });
+    chrome.action.setBadgeBackgroundColor({
+        color: "#4CAF50",
+        tabId: tabId
+    });
+    chrome.action.setPopup(
+        {
+            popup: ''
+        }
+    );
+    chrome.sidePanel
+        .setPanelBehavior({ openPanelOnActionClick: true });
+
+}
+
+function enableMainPopup(tabId) {
+    chrome.action.setPopup(
+        {
+            popup: '/popup/popup.html'
+        });
+
+    chrome.action.setBadgeText({
+        text: "",
+        tabId: tabId
+    });
+
+    chrome.sidePanel
+        .setPanelBehavior({ openPanelOnActionClick: false });
+}
 
 // Function to check if URL matches job site patterns
 function isJobSitePage(url) {
@@ -34,51 +100,3 @@ function isJobSitePage(url) {
         return false;
     }
 }
-
-// Listen for tab updates
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    if (changeInfo.status === "complete" && tab.url) {
-        const jobSiteMatch = isJobSitePage(tab.url);
-
-        if (jobSiteMatch) {
-            // Store the detection for when user clicks extension icon
-            lastDetectedJobSite = {
-                tabId,
-                site: jobSiteMatch.site,
-                config: jobSiteMatch.config
-            };
-
-            // Update extension icon to indicate job site detected
-            chrome.action.setBadgeText({
-                text: "✓",
-                tabId: tabId
-            });
-            chrome.action.setBadgeBackgroundColor({
-                color: "#4CAF50",
-                tabId: tabId
-            });
-        } else {
-            // Reset badge if not on job site
-            chrome.action.setBadgeText({
-                text: "",
-                tabId: tabId
-            });
-        }
-    }
-});
-
-// Handle extension icon click
-chrome.action.onClicked.addListener(async (tab) => {
-    if (lastDetectedJobSite && lastDetectedJobSite.tabId === tab.id) {
-        try {
-            // Open side panel
-            await chrome.sidePanel.open({ tabId: tab.id });
-            // Set side panel state - could use later for scraper info.
-            await chrome.storage.local.set({
-                currentJobSite: lastDetectedJobSite.site,
-            });
-        } catch (error) {
-            console.error('Error opening side panel:', error);
-        }
-    }
-});
