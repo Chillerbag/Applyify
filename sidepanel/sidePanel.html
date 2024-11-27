@@ -11,6 +11,7 @@
             box-sizing: border-box;
             font-family: Arial, sans-serif;
             background-color: #a3c4d4;
+            overflow: hidden;
         }
 
         .container {
@@ -19,56 +20,99 @@
             margin: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1;
         }
 
         .textbox {
-          background-color: rgb(176, 255, 229);
-          height: auto;
-          min-height: 100px;
-          overflow: auto;
+            background-color: rgb(176, 255, 229);
+            height: auto;
+            min-height: 100px;
+            overflow: auto;
+            z-index: 1;
         }
 
         .resumeUploadedNot {
-          margin-top: 8px;
-          font-size: 12px;
-          color: #d31616;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #d31616;
+            z-index: 1;
         }
 
         .resumeUploaded {
-          margin-top: 8px;
-          font-size: 12px;
-          color: #086b22;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #086b22;
+            z-index: 1;
         }
 
         .retry-button {
-          margin-top: 10px;
-          padding: 10px 20px;
-          background-color: #cb2525;
-          border: 1px solid #371c1c;
-          cursor: pointer;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #cb2525;
+            border: 1px solid #371c1c;
+            cursor: pointer;
+            z-index: 1;
         }
         
         h1 {
             color: #333;
             font-size: 24px;
             margin-bottom: 16px;
+            z-index: 1;
         }
 
         p {
             color: #666;
             line-height: 1.5;
+            z-index: 1;
+        }
+
+        canvas {
+            background: #4a148c;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .header {
+            display: flex;
+            width: 100%;
+            align-items: center;
+        }
+
+        .loader {
+            margin-left: auto;
+            border: 8px solid #f3f3f3; /* Light grey */
+            border-top: 8px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-
+    <canvas id="bubbleCanvas"></canvas>
     <div class="resumeUploadedNot" id="resumeUploadedStatus">
       Resume status: not uploaded
     </div>
     <input type="file" id="resumeFile" name="resumeFile" accept=".txt,.doc.docx">
 
     <div class="container">
-        <h1>Suggested CV for this job</h1>
+        <div class="header">
+            <h1>Suggested CV for this job</h1>
+            <div class="loader"></div>
+        </div>
+        <button id="showButton" class="showButton">Show</button>
+
         <div class = "textbox" id="CVContent">
         </div>
     </div>
@@ -85,6 +129,7 @@
       </div>
     </div>
 
+    <script src="../scripts/backgroundAnim.js"></script>
     <script src="../scripts/geminiResponse.js"></script>
     <script src="resumeHandler.js"></script>
 </body>
