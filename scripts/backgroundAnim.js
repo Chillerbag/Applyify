@@ -68,7 +68,7 @@ function animate() {
     bubbles = bubbles.filter(bubble => !bubble.remove);
 
     // randomly spawn new bubbles
-    if (Math.random() < 0.02 && bubbles.length < 40) {
+    if (Math.random() < 0.03 && bubbles.length < 40) {
         bubbles.push(new Bubble());
     }
 
