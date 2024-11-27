@@ -76,6 +76,27 @@
             left: 0;
             z-index: -1;
         }
+
+        .header {
+            display: flex;
+            width: 100%;
+            align-items: center;
+        }
+
+        .loader {
+            margin-left: auto;
+            border: 8px solid #f3f3f3; /* Light grey */
+            border-top: 8px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -86,7 +107,12 @@
     <input type="file" id="resumeFile" name="resumeFile" accept=".txt,.doc.docx">
 
     <div class="container">
-        <h1>Suggested CV for this job</h1>
+        <div class="header">
+            <h1>Suggested CV for this job</h1>
+            <div class="loader"></div>
+        </div>
+        <button id="showButton" class="showButton">Show</button>
+
         <div class = "textbox" id="CVContent">
         </div>
     </div>
