@@ -104,7 +104,6 @@ async function promptGemini(jobDetails) {
   const context = `Job details: ${jobDetails}`;
   const skills_prompt = `Write the list of skills required for this job.`;
 
-  await geminiWriterHandler(CV_TEMPLATE, context, writer, cv_target); // make cv suggestion
   await geminiWriterHandler(skills_prompt, context, writer, skills_target); // make skills list
 
   if (resumeAvaliable) {
@@ -116,6 +115,8 @@ async function promptGemini(jobDetails) {
   } else {
     resume_target.innerHTML = "please upload your resume to use this feature!";
   }
+
+  await geminiWriterHandler(CV_TEMPLATE, context, writer, cv_target); // make cv suggestion
 }
 
 async function writerModelSetup() {
