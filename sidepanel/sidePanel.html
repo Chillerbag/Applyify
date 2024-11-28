@@ -9,14 +9,14 @@
         margin: 0;
         padding: 20px;
         box-sizing: border-box;
-        font-family: Arial, sans-serif;
-        background-color: #2c2c2c; /* Dark grey background */
-        color: #ffffff; /* White text */
+        font-family: 'Roboto', Arial, sans-serif;
+        background-color: #2c2c2c;
+        color: #ffffff;
         overflow: auto;
       }
 
       .container {
-        background-color: #3a3a3a; /* Slightly lighter dark grey */
+        background-color: #3a3a3a;
         padding: 10px;
         margin: 20px;
         border-radius: 8px;
@@ -25,47 +25,49 @@
       }
 
       .textbox {
-        background-color: #4a4a4a; /* Light grey for text boxes */
+        background-color: #4a4a4a;
         height: auto;
         min-height: 100px;
         overflow: auto;
         z-index: 1;
-        color: #ffffff; /* White text */
+        color: #ffffff;
+        padding: 10px;
+        border-radius: 8px;
       }
 
       .resumeNotUploaded {
         margin-top: 8px;
         font-size: 12px;
-        color: #ff4d4d; /* Red for not uploaded status */
+        color: #ff4d4d;
         z-index: 1;
       }
 
       .resumeUploaded {
         margin-top: 8px;
         font-size: 12px;
-        color: #4dff4d; /* Green for uploaded status */
+        color: #4dff4d;
         z-index: 1;
       }
 
       .retry-button {
         margin-top: 10px;
         padding: 10px 20px;
-        background-color: #1e90ff; /* Blue for retry button */
-        border: 1px solid #104e8b; /* Darker blue border */
+        background-color: #1e90ff;
+        border: 1px solid #104e8b;
         cursor: pointer;
         z-index: 1;
-        color: #ffffff; /* White text */
+        color: #ffffff;
       }
 
       h1 {
-        color: #ffffff; /* White text */
+        color: #ffffff;
         font-size: 24px;
         margin-bottom: 16px;
         z-index: 1;
       }
 
       p {
-        color: #ffffff; /* White text */
+        color: #ffffff;
         line-height: 1.5;
         z-index: 1;
       }
@@ -88,8 +90,8 @@
 
       .loader {
         margin-left: auto;
-        border: 8px solid #4a4a4a; /* Light grey loader */
-        border-top: 8px solid #1e90ff; /* Blue loader top */
+        border: 8px solid #4a4a4a;
+        border-top: 8px solid #1e90ff;
         border-radius: 50%;
         width: 20px;
         height: 20px;
@@ -108,37 +110,36 @@
   </head>
   <body>
     <canvas id="bubbleCanvas"></canvas>
-    <div class="resumeUploadedNot" id="resumeUploadedStatus">
-      Resume not uploaded
-    </div>
+    <div class="resumeNotUploaded" id="resumeUploadedStatus" style="font-family: 'Roboto', Arial, sans-serif;"></div>
     <input
       type="file"
       id="resumeFile"
       name="resumeFile"
       accept=".txt,.doc.docx"
+      style="font-family: 'Roboto', Arial, sans-serif;"
     />
 
-    <div class="container">
+    <div class="container" style="font-family: 'Roboto', Arial, sans-serif;">
       <h1>Skills Needed</h1>
       <div class="textbox" id="skillChecklist"></div>
     </div>
 
-    <div class="container">
+    <div class="container" style="font-family: 'Roboto', Arial, sans-serif;">
       <h1>Suggested Resume</h1>
       <div class="textbox" id="resumeContent"></div>
     </div>
 
-    <div class="container">
+    <div class="container" style="font-family: 'Roboto', Arial, sans-serif;">
       <h1>Changes made to Resume</h1>
       <div class="textbox" id="resumeChanges"></div>
     </div>
 
-    <div class="container">
+    <div class="container" style="font-family: 'Roboto', Arial, sans-serif;">
       <div class="header">
-        <h1>Suggested CV</h1>
-        <div class="loader"></div>
+      <h1>Suggested CV</h1>
+      <div class="loader"></div>
       </div>
-      <button id="showButton" class="showButton">Show</button>
+      <button id="showButton" class="showButton" style="font-family: 'Roboto', Arial, sans-serif;">Show</button>
 
       <div class="textbox" id="CVContent"></div>
     </div>
