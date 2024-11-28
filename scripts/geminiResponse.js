@@ -102,8 +102,8 @@ async function promptGemini(jobDetails) {
   const context = `Job details: ${jobDetails}`;
   const skills_prompt = `Write the list of skills required for this job.`;
 
-  //await geminiWriterHandler(CV_TEMPLATE, context, writer, cv_target); // make cv suggestion
-  //await geminiWriterHandler(skills_prompt, context, writer, skills_target); // make skills list
+  await geminiWriterHandler(CV_TEMPLATE, context, writer, cv_target); // make cv suggestion
+  await geminiWriterHandler(skills_prompt, context, writer, skills_target); // make skills list
 
   if (resumeAvaliable) {
     const resume_obj = await chrome.storage.local.get(["resume"]);
