@@ -39,7 +39,8 @@ Sincerely,
 const cv_target = document.getElementById("CVContent");
 const skills_target = document.getElementById("skillChecklist");
 const resume_target = document.getElementById("resumeContent");
-const targets = [cv_target, skills_target, resume_target];
+const resume_changes_target = document.getElementById("resumeChanges");
+const targets = [cv_target, skills_target, resume_target, resume_changes_target];
 
 // writer and rewriter should be constants we populate on document load.
 let writer = null;
@@ -70,7 +71,7 @@ document.addEventListener("resumeAvaliable", async () => {
   resume_model = await promptModelSetup();
 });
 
-// check if the scraper told us its found a job.
+// check if the scraper told us its found a job
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (message.type === "broadcastJobDetails") {
     await promptGemini(message.jobDetails);
@@ -101,13 +102,13 @@ async function promptGemini(jobDetails) {
   const context = `Job details: ${jobDetails}`;
   const skills_prompt = `Write the list of skills required for this job.`;
 
-  await geminiWriterHandler(CV_TEMPLATE, context, writer, cv_target); // make cv suggestion
-  await geminiWriterHandler(skills_prompt, context, writer, skills_target); // make skills list
+  //await geminiWriterHandler(CV_TEMPLATE, context, writer, cv_target); // make cv suggestion
+  //await geminiWriterHandler(skills_prompt, context, writer, skills_target); // make skills list
 
   if (resumeAvaliable) {
     const resume_obj = await chrome.storage.local.get(["resume"]);
     const resume_text = resume_obj.resume;
-    const resume_prompt = `State "[RESUME]", then rewrite the resume to fit the job description. Only use information from the resume. Afterwards state "[DETAILS]", and state what has been changed in the resume, and why. Resume: [${resume_text}] Job advertisement: [${jobDetails}]`;
+    const resume_prompt = `State "[RESUME]" then rewrite the resume to fit the job description. Only use information from the resume. After the resume has been completely rewritten, state "[CHANGES]" and state what has been changed in the resume, and why. Resume: [${resume_text}] Job advertisement: [${jobDetails}]`;
     // FIXME: POINTLESS REFERENCE PASSING writer is now globally scoped to this file.
     await geminiPromptHandler(resume_prompt, resume_model, resume_target);
   } else {
@@ -129,20 +130,20 @@ async function geminiPromptHandler(prompt, model, target) {
   try {
     const stream = await model.promptStreaming(prompt);
     for await (const chunk of stream) {
-      // split up into resume + details
-      if (chunk.includes("[DETAILS]")) {
+      // split up into resume + changes
+      if (chunk.includes("[CHANGES]")) {
         let resume = chunk.split("[RESUME]")[1];
-        let details = chunk.split("[DETAILS]")[1];
-        // TODO: put details into different target
-        console.log("resume: ", resume);
-        console.log("details: ", details);
-        target.innerHTML = details;
+        resume = resume.split("[CHANGES]")[0];
+        target.innerHTML = resume;
+
+        let changes = chunk.split("[CHANGES]")[1];
+        resume_changes_target.innerHTML = changes;
       } else if (chunk.includes("[RESUME]")) {
         let resume = chunk.split("[RESUME]")[1];
         target.innerHTML = resume;
       } else {
         target.innerHTML = chunk;
-      }      
+      }
     }
   } catch (error) {
     console.error("Gemini failed with error: ", error);
