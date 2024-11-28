@@ -10,12 +10,13 @@
             padding: 20px;
             box-sizing: border-box;
             font-family: Arial, sans-serif;
-            background-color: #a3c4d4;
+            background-color: #2c2c2c; /* Dark grey background */
+            color: #ffffff; /* White text */
             overflow: auto;
         }
 
         .container {
-            background-color: rgb(90, 199, 230);
+            background-color: #3a3a3a; /* Slightly lighter dark grey */
             padding: 10px;
             margin: 20px;
             border-radius: 8px;
@@ -24,51 +25,53 @@
         }
 
         .textbox {
-            background-color: rgb(176, 255, 229);
+            background-color: #4a4a4a; /* Light grey for text boxes */
             height: auto;
             min-height: 100px;
             overflow: auto;
             z-index: 1;
+            color: #ffffff; /* White text */
         }
 
         .resumeNotUploaded {
             margin-top: 8px;
             font-size: 12px;
-            color: #d31616;
+            color: #ff4d4d; /* Red for not uploaded status */
             z-index: 1;
         }
 
         .resumeUploaded {
             margin-top: 8px;
             font-size: 12px;
-            color: #086b22;
+            color: #4dff4d; /* Green for uploaded status */
             z-index: 1;
         }
 
         .retry-button {
             margin-top: 10px;
             padding: 10px 20px;
-            background-color: #cb2525;
-            border: 1px solid #371c1c;
+            background-color: #1e90ff; /* Blue for retry button */
+            border: 1px solid #104e8b; /* Darker blue border */
             cursor: pointer;
             z-index: 1;
+            color: #ffffff; /* White text */
         }
         
         h1 {
-            color: #333;
+            color: #ffffff; /* White text */
             font-size: 24px;
             margin-bottom: 16px;
             z-index: 1;
         }
 
         p {
-            color: #666;
+            color: #ffffff; /* White text */
             line-height: 1.5;
             z-index: 1;
         }
 
         canvas {
-            background: #4a148c;
+            background: #212121;
             width: 100vw;
             height: 100vh;
             position: fixed;
@@ -85,8 +88,8 @@
 
         .loader {
             margin-left: auto;
-            border: 8px solid #f3f3f3; /* Light grey */
-            border-top: 8px solid #3498db; /* Blue */
+            border: 8px solid #4a4a4a; /* Light grey loader */
+            border-top: 8px solid #1e90ff; /* Blue loader top */
             border-radius: 50%;
             width: 20px;
             height: 20px;
