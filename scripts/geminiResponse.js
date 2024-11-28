@@ -7,6 +7,8 @@ Last modified: 21/11/2024 by Ethan
 // -------------------------------------------------------------------
 //                                 Constants
 // -------------------------------------------------------------------
+import { marked } from "../node_modules/marked/lib/marked.esm.js"
+
 const CV_TEMPLATE = `
 Write an excellent cover letter using this template:
 
@@ -134,15 +136,15 @@ async function geminiPromptHandler(prompt, model, target) {
       if (chunk.includes("[CHANGES]")) {
         let resume = chunk.split("[RESUME]")[1];
         resume = resume.split("[CHANGES]")[0];
-        target.innerHTML = resume;
+        target.innerHTML = marked(resume);
 
         let changes = chunk.split("[CHANGES]")[1];
-        resume_changes_target.innerHTML = changes;
+        resume_changes_target.innerHTML = marked(changes);
       } else if (chunk.includes("[RESUME]")) {
         let resume = chunk.split("[RESUME]")[1];
-        target.innerHTML = resume;
+        target.innerHTML = marked(resume);
       } else {
-        target.innerHTML = chunk;
+        target.innerHTML = marked(chunk);
       }
     }
   } catch (error) {
@@ -168,7 +170,7 @@ async function geminiWriterHandler(prompt, context, writer, target) {
     });
     for await (const chunk of stream) {
       response = chunk;
-      target.innerHTML = response;
+      target.innerHTML = marked(response);
     }
   } catch (error) {
     console.error("Gemini failed with error: ", error);
