@@ -102,7 +102,7 @@ document.addEventListener("geminiFailed", (data) => {
 // -------------------------------------------------------------------
 async function promptGemini(jobDetails) {
   const context = `Job details: ${jobDetails}`;
-  const skills_prompt = `Write the list of skills required for this job.`;
+  const skills_prompt = `State the skills required for this job in dot points.`;
 
   await geminiWriterHandler(skills_prompt, context, writer, skills_target); // make skills list
 
