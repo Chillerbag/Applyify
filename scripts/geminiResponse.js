@@ -8,7 +8,7 @@ Last modified: 21/11/2024 by Ethan
 //                                 Constants
 // -------------------------------------------------------------------
 const CV_TEMPLATE = `
-Write an excellent cover letter. Here is the template:
+Write an excellent cover letter using this template:
 
 [Your Name]
 [Your Address]
@@ -44,6 +44,7 @@ const targets = [cv_target, skills_target, resume_target];
 // writer and rewriter should be constants we populate on document load.
 let writer = null;
 //let rewriter = null;
+let resume_model = null;
 
 // flags for executing certain things
 let resumeAvaliable = false;
@@ -64,8 +65,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // check if a resume has been uploaded, if so, we can do the resume updates.
-document.addEventListener("resumeAvaliable", () => {
+document.addEventListener("resumeAvaliable", async () => {
   resumeAvaliable = true;
+  resume_model = await promptModelSetup();
 });
 
 // check if the scraper told us its found a job.
@@ -76,8 +78,6 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 });
 
 // wait for the page to fully load before prompting gemini.
-// TODO: we need to find some way to stop showing stuff until we know the scraper is scraping the right stuff.
-// maybe this could involve more specific urls? so the scraper doesnt get trigger happy, linkedin.com/jobs may not be good enough
 window.addEventListener("load", async function () {
   for (const target of targets) {
     target.innerHTML = "Loading...";
@@ -98,19 +98,18 @@ document.addEventListener("geminiFailed", (data) => {
 //                             Gemini functions
 // -------------------------------------------------------------------
 async function promptGemini(jobDetails) {
-  let context = `Job details: ${jobDetails}`;
-  let skills_prompt = `Write the list of skills required for this job.`;
+  const context = `Job details: ${jobDetails}`;
+  const skills_prompt = `Write the list of skills required for this job.`;
 
-  await geminiWriterHandler(CV_TEMPLATE, context, writer, cv_target);   // make cv suggestion
-  await geminiWriterHandler(skills_prompt, context, writer, skills_target);   // make skills list
+  await geminiWriterHandler(CV_TEMPLATE, context, writer, cv_target); // make cv suggestion
+  await geminiWriterHandler(skills_prompt, context, writer, skills_target); // make skills list
 
   if (resumeAvaliable) {
-    //let rewriter = await rewriterModelSetup();   // this isnt fully implemented yet by google, fix later.
-    let resume_model = await promptModelSetup();
     const resume_obj = await chrome.storage.local.get(["resume"]);
     const resume_text = resume_obj.resume;
-    const resume_prompt = `State "[RESUME]", then rewrite the resume to fit the job description. Only use information from the resume. Afterwards state "[DETAILS]", and state what has been changed in the resume, and why. Resume: ${resume_text} Job advertisement: ${jobDetails}`;
-    await geminiPromptHandler(resume_prompt, resume_model, resume_target); // writer is now globally scoped to this file. FIXME: POINTLESS REFERENCE PASSING
+    const resume_prompt = `State "[RESUME]", then rewrite the resume to fit the job description. Only use information from the resume. Afterwards state "[DETAILS]", and state what has been changed in the resume, and why. Resume: [${resume_text}] Job advertisement: [${jobDetails}]`;
+    // FIXME: POINTLESS REFERENCE PASSING writer is now globally scoped to this file.
+    await geminiPromptHandler(resume_prompt, resume_model, resume_target);
   } else {
     resume_target.innerHTML = "please upload your resume to use this feature!";
   }
@@ -128,11 +127,22 @@ async function promptModelSetup() {
 
 async function geminiPromptHandler(prompt, model, target) {
   try {
-    let response = "";
     const stream = await model.promptStreaming(prompt);
     for await (const chunk of stream) {
-      response = chunk;
-      target.innerHTML = response;
+      // split up into resume + details
+      if (chunk.includes("[DETAILS]")) {
+        let resume = chunk.split("[RESUME]")[1];
+        let details = chunk.split("[DETAILS]")[1];
+        // TODO: put details into different target
+        console.log("resume: ", resume);
+        console.log("details: ", details);
+        target.innerHTML = details;
+      } else if (chunk.includes("[RESUME]")) {
+        let resume = chunk.split("[RESUME]")[1];
+        target.innerHTML = resume;
+      } else {
+        target.innerHTML = chunk;
+      }      
     }
   } catch (error) {
     console.error("Gemini failed with error: ", error);
@@ -148,10 +158,6 @@ async function geminiPromptHandler(prompt, model, target) {
     document.dispatchEvent(geminiFailed);
   }
 }
-
-// async function rewriterModelSetup() {
-//   return await ai.rewriter.create(); //TODO SPEC THIS FURTHER
-// }
 
 async function geminiWriterHandler(prompt, context, writer, target) {
   try {
@@ -179,29 +185,20 @@ async function geminiWriterHandler(prompt, context, writer, target) {
   }
 }
 
-// // TODO: if google doesnt finish this soon, lets delete it and go with the writer.
-// async function geminiRewriterHandler(prompt, context, rewriter, target) {
-//   let response = "";
-//   const stream = await rewriter.rewriteStreaming(prompt);   // todo, wait for google to fix?
-
-//   for await (const chunk of stream) {
-//     response = chunk;
-//     target.innerHTML = response;
-//   }
-// }
-
 // wait for the page to fully load before prompting gemini
 window.addEventListener("load", function () {
   console.log("window fully loaded!");
   cv_target.innerHTML = "Loading...";
   skills_target.innerHTML = "Loading...";
 });
+
 // -------------------------------------------------------------------
 //                             Helper functions
 // -------------------------------------------------------------------
+// TODO: change to work depending on current model (prompt, writer, rewriter) rather than just writer
 function createRetryButton(target, prompt, context, writer) {
   if (target) {
-    const retryButton = document.createElement("button"); // Create a new button element
+    const retryButton = document.createElement("button");
     retryButton.textContent = "Reprompt Gemini";
     retryButton.classList.add("retry-button");
 
@@ -209,6 +206,8 @@ function createRetryButton(target, prompt, context, writer) {
       await geminiWriterHandler(prompt, context, writer, target);
     });
 
-    target.appendChild(retryButton); // Append the retry button in container. TODO: this should go somewhere else
+    // TODO: this should go somewhere else
+    // Append the retry button in container. 
+    target.appendChild(retryButton);
   }
 }
