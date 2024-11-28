@@ -85,7 +85,6 @@
       .header {
         display: flex;
         width: 100%;
-        align-items: center;
       }
 
       .loader {
@@ -96,6 +95,21 @@
         width: 20px;
         height: 20px;
         animation: spin 2s linear infinite;
+      }
+
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #ffffff;
+        font-size: 24px;
       }
 
       @keyframes spin {
@@ -109,6 +123,8 @@
     </style>
   </head>
   <body>
+    <div class="overlay" id="loadingOverlay">Waiting for job page...</div>
+
     <canvas id="bubbleCanvas"></canvas>
     <div class="resumeNotUploaded" id="resumeUploadedStatus" style="font-family: 'Roboto', Arial, sans-serif;"></div>
     <input

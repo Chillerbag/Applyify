@@ -80,13 +80,6 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   }
 });
 
-// wait for the page to fully load before prompting gemini.
-window.addEventListener("load", async function () {
-  for (const target of targets) {
-    target.innerHTML = "Loading...";
-  }
-});
-
 // check if gemini got stuck.
 document.addEventListener("geminiFailed", (data) => {
   const prompt = data.detail.prompt;
@@ -101,6 +94,9 @@ document.addEventListener("geminiFailed", (data) => {
 //                             Gemini functions
 // -------------------------------------------------------------------
 async function promptGemini(jobDetails) {
+  // loaded now!
+  document.getElementById('loadingOverlay').style.display = 'none';
+
   const context = `Job details: ${jobDetails}`;
   const skills_prompt = `State the skills required for this job in dot points.`;
 
@@ -188,13 +184,6 @@ async function geminiWriterHandler(prompt, context, writer, target) {
     document.dispatchEvent(geminiFailed);
   }
 }
-
-// wait for the page to fully load before prompting gemini
-window.addEventListener("load", function () {
-  console.log("window fully loaded!");
-  cv_target.innerHTML = "Loading...";
-  skills_target.innerHTML = "Loading...";
-});
 
 // -------------------------------------------------------------------
 //                             Helper functions
