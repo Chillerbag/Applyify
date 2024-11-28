@@ -79,7 +79,7 @@ async function checkUrl() {
     await resetData();
     currentUrl = grabURL();
 
-    if (currentUrl.includes("linkedin.com")) {
+    if (currentUrl.includes("linkedin.com") && currentUrl.includes("?currentJobId=")) {
       console.log("linkedin job page detected!");
       html_div = LINKEDIN_JOB_DETAILS;
       use_dynamic_scraping = true;
