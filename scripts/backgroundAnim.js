@@ -48,7 +48,7 @@ class Bubble {
     draw() {
         context.beginPath();
         context.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        context.fillStyle = `rgba(186, 104, 200, ${this.opacity})`;
+        context.fillStyle = `rgba(33, 150, 243, ${this.opacity})`;
         context.fill();
     }
 }
@@ -61,7 +61,7 @@ for (let i = 0; i < 30; i++) {
 }
 
 function animate() {
-    context.fillStyle = '#4a148c';
+    context.fillStyle = '#212121';
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     // remove faded bubbles
