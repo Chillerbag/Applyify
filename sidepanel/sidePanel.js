@@ -1,4 +1,22 @@
-// we need to change the loading wheel on load, and then we need to set it as a tick or cross depending on if
-// it returns an error or not.
+// open the textboxes.
+const showButtons = document.querySelectorAll('.showButton');
+console.log(showButtons.length);
 
-// idea - broadcast a message from the thing that handles the gemini prompting, and handle it here
+showButtons.forEach(button => {
+    button.addEventListener('click', function () {
+        const textbox = this.nextElementSibling; // get gemini textbox
+        if (textbox.style.display === "none" || textbox.style.display === "") {
+            textbox.style.display = "block"; // Show the textbox
+            setTimeout(() => {
+                textbox.style.maxHeight = '1000px';
+                textbox.style.opacity = 1;
+            }, 0);
+        } else {
+            textbox.style.maxHeight = '0';
+            textbox.style.opacity = 0;
+            setTimeout(() => {
+                textbox.style.display = "none";
+            }, 300);
+        }
+    });
+});

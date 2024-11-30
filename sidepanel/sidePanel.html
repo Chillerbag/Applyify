@@ -29,10 +29,13 @@
         height: auto;
         min-height: 100px;
         overflow: auto;
-        z-index: 1;
         color: #ffffff;
         padding: 10px;
         border-radius: 8px;
+        display: none;
+        transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+        max-height: 0;
+        opacity: 0;
       }
 
       .resumeNotUploaded {
@@ -175,5 +178,6 @@
     <script src="../scripts/backgroundAnim.js"></script>
     <script type="module" src="../scripts/geminiResponse.js"></script>
     <script src="resumeHandler.js"></script>
+    <script src="sidePanel.js"></script>
   </body>
 </html>
