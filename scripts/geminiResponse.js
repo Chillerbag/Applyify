@@ -38,10 +38,10 @@ Sincerely,
 [Your Name]`;
 
 // where we ask gemini to update
-const cv_target = document.getElementById("CVContent");
-const skills_target = document.getElementById("skillChecklist");
-const resume_target = document.getElementById("resumeContent");
-const resume_changes_target = document.getElementById("resumeChanges");
+const cv_target = document.getElementById("CVContainer");
+const skills_target = document.getElementById("skillChecklistContainer");
+const resume_target = document.getElementById("updatedResumeContainer");
+const resume_changes_target = document.getElementById("resumeChangesContainer");
 const targets = [cv_target, skills_target, resume_target, resume_changes_target];
 
 // writer and rewriter should be constants we populate on document load.
@@ -86,6 +86,8 @@ document.addEventListener("geminiFailed", (data) => {
   const context = data.detail.context;
   const writer = data.detail.writer;
   const target = data.detail.target;
+  // TODO ETHAN
+  // update that containers loading wheel to be a X.
 
   createRetryButton(target, prompt, context, writer);
 });
@@ -126,6 +128,8 @@ async function promptModelSetup() {
 }
 
 async function geminiPromptHandler(prompt, model, target) {
+  let geminiTarget = target.querySelector('.textbox');
+  loadHandler(target, -1);
   try {
     const stream = await model.promptStreaming(prompt);
     for await (const chunk of stream) {
@@ -133,21 +137,22 @@ async function geminiPromptHandler(prompt, model, target) {
       if (chunk.includes("[CHANGES]")) {
         let resume = chunk.split("[RESUME]")[1];
         resume = resume.split("[CHANGES]")[0];
-        target.innerHTML = marked(resume);
+        geminiTarget.innerHTML = marked(resume);
 
         let changes = chunk.split("[CHANGES]")[1];
         resume_changes_target.innerHTML = marked(changes);
       } else if (chunk.includes("[RESUME]")) {
         let resume = chunk.split("[RESUME]")[1];
-        target.innerHTML = marked(resume);
+        geminiTarget.innerHTML = marked(resume);
       } else {
-        target.innerHTML = marked(chunk);
+        geminiTarget.innerHTML = marked(chunk);
       }
     }
   } catch (error) {
     console.error("Gemini failed with error: ", error);
     console.log("prompt: ", prompt);
-    target.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
+    geminiTarget.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
+    loadHandler(target, 0);
     const geminiFailed = new CustomEvent("geminiFailed", {
       detail: {
         prompt: prompt,
@@ -157,9 +162,40 @@ async function geminiPromptHandler(prompt, model, target) {
     });
     document.dispatchEvent(geminiFailed);
   }
+  loadHandler(target, 1);
+}
+
+function loadHandler(target, status) {
+  let geminiHeader =  target.querySelector('.header');
+  let loadStatus = geminiHeader.querySelector('.loader');
+
+  if (!loadStatus) {
+    // replace image with a loader
+    let imgToReplace = document.querySelector('img');
+    if (imgToReplace) {
+      const loaderDiv = document.createElement('div');
+      loaderDiv.classList.add('loader');
+      imgToReplace.replaceWith(loaderDiv);
+    } // TODO: ERROR HANDLE?
+  } else {
+    // there is a loader, so we want to replace it with current status
+    if (status === 1) {
+      const successImg = document.createElement('img');
+      successImg.src = "/images/Succeed.png";
+      loadStatus.replaceWith(successImg);
+    } else if (status === 0) {
+      const failImg = document.createElement('img');
+      failImg.src = "/images/Fail.png";
+      loadStatus.replaceWith(failImg);
+    }
+  }
+
+
 }
 
 async function geminiWriterHandler(prompt, context, writer, target) {
+  let geminiTarget = target.querySelector('.textbox');
+  loadHandler(target, -1);
   try {
     let response = "";
     const stream = await writer.writeStreaming(prompt, {
@@ -167,12 +203,13 @@ async function geminiWriterHandler(prompt, context, writer, target) {
     });
     for await (const chunk of stream) {
       response = chunk;
-      target.innerHTML = marked(response);
+      geminiTarget.innerHTML = marked(response);
     }
   } catch (error) {
     console.error("Gemini failed with error: ", error);
     console.log("prompt: ", prompt);
-    target.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
+    geminiTarget.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
+    loadHandler(target, 0);
     const geminiFailed = new CustomEvent("geminiFailed", {
       detail: {
         prompt: prompt,
@@ -183,6 +220,7 @@ async function geminiWriterHandler(prompt, context, writer, target) {
     });
     document.dispatchEvent(geminiFailed);
   }
+  loadHandler(target, 1);
 }
 
 // -------------------------------------------------------------------

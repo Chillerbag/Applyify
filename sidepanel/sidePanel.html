@@ -135,29 +135,40 @@
       style="font-family: 'Roboto', Arial, sans-serif;"
     />
 
-    <div class="container" style="font-family: 'Roboto', Arial, sans-serif;">
-      <h1>Skills Needed</h1>
-      <div class="textbox" id="skillChecklist"></div>
+    <div class="container" style="font-family: 'Roboto', Arial, sans-serif;" id="skillChecklistContainer">
+      <div class="header">
+        <h1>Skills Needed</h1>
+        <div class="loader"></div>
+      </div>
+      <button class="showButton" style="font-family: 'Roboto', Arial, sans-serif;">Show</button>
+      <div class="textbox"></div>
     </div>
 
-    <div class="container" style="font-family: 'Roboto', Arial, sans-serif;">
-      <h1>Suggested Resume</h1>
-      <div class="textbox" id="resumeContent"></div>
+    <div class="container" style="font-family: 'Roboto', Arial, sans-serif;" id="updatedResumeContainer">
+      <div class="header">
+        <h1>Suggested Resume</h1>
+        <div class="loader"></div>
+      </div>
+      <button class="showButton" style="font-family: 'Roboto', Arial, sans-serif;">Show</button>
+      <div class="textbox"></div>
     </div>
 
-    <div class="container" style="font-family: 'Roboto', Arial, sans-serif;">
-      <h1>Changes made to Resume</h1>
-      <div class="textbox" id="resumeChanges"></div>
+    <div class="container" style="font-family: 'Roboto', Arial, sans-serif;" id="resumeChangesContainer">
+      <div class="header">
+        <h1>Changes made to Resume<</h1>
+        <div class="loader"></div>
+      </div>
+      <button class="showButton" style="font-family: 'Roboto', Arial, sans-serif;">Show</button>
+      <div class="textbox"></div>
     </div>
 
-    <div class="container" style="font-family: 'Roboto', Arial, sans-serif;">
+    <div class="container" style="font-family: 'Roboto', Arial, sans-serif;" id="CVContainer">
       <div class="header">
       <h1>Suggested CV</h1>
       <div class="loader"></div>
       </div>
-      <button id="showButton" class="showButton" style="font-family: 'Roboto', Arial, sans-serif;">Show</button>
-
-      <div class="textbox" id="CVContent"></div>
+      <button class="showButton" style="font-family: 'Roboto', Arial, sans-serif;">Show</button>
+      <div class="textbox"></div>
     </div>
 
     <script src="../node_modules/marked/lib/marked.esm.js"></script>
