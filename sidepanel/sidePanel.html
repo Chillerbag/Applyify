@@ -38,18 +38,92 @@
         opacity: 0;
       }
 
+      .resume-upload-container {
+        background-color: #3a3a3a;
+        padding: 10px;
+        margin-bottom: 50px;
+        border-radius: 24px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        position: relative;
+      }
+
+      .resume-upload-container::after {
+        content: '';
+        position: absolute;
+        padding-bottom: 5px;
+        bottom: -20px;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(
+                to right,
+                transparent,
+                #1e90ff,
+                transparent
+        );
+      }
+
+      .resume-upload-title {
+        color: #ffffff;
+        font-size: 24px;
+        margin-bottom: 16px;
+      }
+
+      .file-input-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+      }
+
+      .file-input-button {
+        background-color: #1e90ff;
+        color: #ffffff;
+        padding: 10px 20px;
+        border: 1px solid #104e8b;
+        border-radius: 4px;
+        cursor: pointer;
+        display: inline-block;
+        transition: background-color 0.3s;
+      }
+
+      .file-input-button:hover {
+        background-color: #1873cc;
+      }
+
+      #resumeFile {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+      }
+
+      .accepted-formats {
+        margin-top: 10px;
+        color: #a0a0a0;
+        font-size: 12px;
+      }
+
       .resumeNotUploaded {
         margin-top: 8px;
         font-size: 12px;
         color: #ff4d4d;
-        z-index: 1;
+        padding: 4px 8px;
+        background-color: rgba(255, 77, 77, 0.1);
+        border-radius: 4px;
+        display: inline-block;
       }
 
       .resumeUploaded {
         margin-top: 8px;
         font-size: 12px;
         color: #4dff4d;
-        z-index: 1;
+        padding: 4px 8px;
+        background-color: rgba(77, 255, 77, 0.1);
+        border-radius: 4px;
+        display: inline-block;
       }
 
       .retry-button {
@@ -135,14 +209,22 @@
     <div class="overlay" id="loadingOverlay">Waiting for job page...</div>
 
     <canvas id="bubbleCanvas"></canvas>
-    <div class="resumeNotUploaded" id="resumeUploadedStatus" style="font-family: 'Roboto', Arial, sans-serif;"></div>
-    <input
-      type="file"
-      id="resumeFile"
-      name="resumeFile"
-      accept=".txt,.doc.docx"
-      style="font-family: 'Roboto', Arial, sans-serif;"
-    />
+    <div class="resume-upload-container">
+      <h1 class="resume-upload-title">Upload Resume</h1>
+      <div class="file-input-wrapper">
+        <div class="file-input-button">Choose File</div>
+        <input
+                type="file"
+                id="resumeFile"
+                name="resumeFile"
+                accept=".txt,.doc,.docx"
+        />
+      </div>
+      <div class="accepted-formats">
+        Accepted formats: .txt, .doc, .docx
+      </div>
+      <div class="resumeNotUploaded" id="resumeUploadedStatus"></div>
+    </div>
 
     <div class="container" style="font-family: 'Roboto', Arial, sans-serif;" id="skillChecklistContainer">
       <div class="header">
