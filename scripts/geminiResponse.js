@@ -111,7 +111,25 @@ document.addEventListener("geminiFailed", (data) => {
     const target = data.detail.target;
     createRetryButton(target, prompt, context, writer);
   } else {
-    alert("Gemini is struggling with this job. Please try a different listing. Sorry!")
+    alert("Gemini is struggling with this job. Please try a different listing. Sorry!");
+
+    //set all to failed to show this job wont work.
+    const statusImgs = document.querySelectorAll(".statusImg");
+    const loaders = document.querySelectorAll(".loader");
+
+    for (const status of statusImgs) {
+      const failImg = document.createElement('img');
+      failImg.src = "/images/Fail.png"
+      failImg.classList.add('statusImg');
+      status.replaceWith(failImg);
+    }
+
+    for (const loader of loaders) {
+      const failImg = document.createElement('img');
+      failImg.src = "/images/Fail.png"
+      failImg.classList.add('statusImg');
+      loader.replaceWith(failImg);
+    }
   }
 });
 
@@ -239,6 +257,8 @@ function createRetryButton(target, prompt, context, writer) {
     retryButton.addEventListener("click", async () => {
       retryButton.remove();
       numRetries += 1;
+      let geminiTarget = target.querySelector('.textbox');
+      geminiTarget.innerHTML = '';
       await geminiWriterHandler(prompt, context, writer, target);
     });
     target.appendChild(retryButton);
