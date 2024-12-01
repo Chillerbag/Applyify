@@ -86,9 +86,6 @@ document.addEventListener("geminiFailed", (data) => {
   const context = data.detail.context;
   const writer = data.detail.writer;
   const target = data.detail.target;
-  // TODO ETHAN
-  // update that containers loading wheel to be a X.
-
   createRetryButton(target, prompt, context, writer);
 });
 
@@ -140,7 +137,7 @@ async function geminiPromptHandler(prompt, model, target) {
         geminiTarget.innerHTML = marked(resume);
 
         let changes = chunk.split("[CHANGES]")[1];
-        resume_changes_target.innerHTML = marked(changes);
+        geminiTarget.innerHTML = marked(changes);
       } else if (chunk.includes("[RESUME]")) {
         let resume = chunk.split("[RESUME]")[1];
         geminiTarget.innerHTML = marked(resume);
@@ -148,6 +145,7 @@ async function geminiPromptHandler(prompt, model, target) {
         geminiTarget.innerHTML = marked(chunk);
       }
     }
+    loadHandler(target, 1);
   } catch (error) {
     console.error("Gemini failed with error: ", error);
     console.log("prompt: ", prompt);
@@ -162,7 +160,6 @@ async function geminiPromptHandler(prompt, model, target) {
     });
     document.dispatchEvent(geminiFailed);
   }
-  loadHandler(target, 1);
 }
 
 function loadHandler(target, status) {
@@ -170,9 +167,10 @@ function loadHandler(target, status) {
   let loadStatus = geminiHeader.querySelector('.loader');
 
   if (!loadStatus) {
-    // replace image with a loader
-    let imgToReplace = document.querySelector('img');
+
+    let imgToReplace = geminiHeader.querySelector('img');
     if (imgToReplace) {
+
       const loaderDiv = document.createElement('div');
       loaderDiv.classList.add('loader');
       imgToReplace.replaceWith(loaderDiv);
@@ -181,16 +179,16 @@ function loadHandler(target, status) {
     // there is a loader, so we want to replace it with current status
     if (status === 1) {
       const successImg = document.createElement('img');
+      successImg.classList.add('statusImg');
       successImg.src = "/images/Succeed.png";
       loadStatus.replaceWith(successImg);
     } else if (status === 0) {
       const failImg = document.createElement('img');
-      failImg.src = "/images/Fail.png";
+      failImg.src = "/images/Fail.png"
+      failImg.classList.add('statusImg');
       loadStatus.replaceWith(failImg);
     }
   }
-
-
 }
 
 async function geminiWriterHandler(prompt, context, writer, target) {
