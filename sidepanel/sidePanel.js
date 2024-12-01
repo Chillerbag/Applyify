@@ -10,6 +10,7 @@ showButtons.forEach(button => {
             setTimeout(() => {
                 textbox.style.maxHeight = '1000px';
                 textbox.style.opacity = 1;
+                button.textContent = 'Hide';
             }, 0);
         } else {
             textbox.style.maxHeight = '0';
@@ -17,6 +18,7 @@ showButtons.forEach(button => {
             setTimeout(() => {
                 textbox.style.display = "none";
             }, 300);
+            button.textContent = 'Show';
         }
     });
 });
