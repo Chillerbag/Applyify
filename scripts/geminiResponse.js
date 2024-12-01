@@ -49,6 +49,8 @@ let writer = null;
 //let rewriter = null;
 let resume_model = null;
 
+let numRetries = 0;
+
 // flags for executing certain things
 let resumeAvaliable = false;
 
@@ -76,18 +78,41 @@ document.addEventListener("resumeAvaliable", async () => {
 // check if the scraper told us its found a job
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (message.type === "broadcastJobDetails") {
-    // call function to reset all loaders and textboxes
+    onJobCleanup();
+    numRetries = 0;
     await promptGemini(message.jobDetails);
   }
 });
 
+function onJobCleanup() {
+  const textboxes = document.querySelectorAll(".textbox");
+  const statusImgs = document.querySelectorAll(".statusImg");
+  const retryButtons = document.querySelectorAll(".retryButton");
+  for (const text of textboxes) {
+    text.innerHTML = "";
+  }
+  for (const status of statusImgs) {
+    const loaderDiv = document.createElement('div');
+    loaderDiv.classList.add('loader');
+    status.replaceWith(loaderDiv);
+  }
+  for (const retryButton of retryButtons) {
+    retryButton.remove();
+  }
+}
+
 // check if gemini got stuck.
 document.addEventListener("geminiFailed", (data) => {
-  const prompt = data.detail.prompt;
-  const context = data.detail.context;
-  const writer = data.detail.writer;
-  const target = data.detail.target;
-  createRetryButton(target, prompt, context, writer);
+
+  if (numRetries <= 3) {
+    const prompt = data.detail.prompt;
+    const context = data.detail.context;
+    const writer = data.detail.writer;
+    const target = data.detail.target;
+    createRetryButton(target, prompt, context, writer);
+  } else {
+    alert("Gemini is struggling with this job. Please try a different listing. Sorry!")
+  }
 });
 
 // -------------------------------------------------------------------
@@ -213,6 +238,7 @@ function createRetryButton(target, prompt, context, writer) {
 
     retryButton.addEventListener("click", async () => {
       retryButton.remove();
+      numRetries += 1;
       await geminiWriterHandler(prompt, context, writer, target);
     });
     target.appendChild(retryButton);
