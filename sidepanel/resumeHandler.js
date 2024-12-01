@@ -43,7 +43,7 @@ reader.addEventListener("load", () => {
       await updateResumeUploadStatus(true);
       permitResumeGeminiUpdating();
     });
-  } catch {
+  } catch (error) {
     errorBoxCreator("body", error);
   }
 });

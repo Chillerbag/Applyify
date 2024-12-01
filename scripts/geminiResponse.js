@@ -49,6 +49,8 @@ let writer = null;
 //let rewriter = null;
 let resume_model = null;
 
+let numRetries = 0;
+
 // flags for executing certain things
 let resumeAvaliable = false;
 
@@ -76,20 +78,59 @@ document.addEventListener("resumeAvaliable", async () => {
 // check if the scraper told us its found a job
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (message.type === "broadcastJobDetails") {
+    onJobCleanup();
+    numRetries = 0;
     await promptGemini(message.jobDetails);
   }
 });
 
+function onJobCleanup() {
+  const textboxes = document.querySelectorAll(".textbox");
+  const statusImgs = document.querySelectorAll(".statusImg");
+  const retryButtons = document.querySelectorAll(".retryButton");
+  for (const text of textboxes) {
+    text.innerHTML = "";
+  }
+  for (const status of statusImgs) {
+    const loaderDiv = document.createElement('div');
+    loaderDiv.classList.add('loader');
+    status.replaceWith(loaderDiv);
+  }
+  for (const retryButton of retryButtons) {
+    retryButton.remove();
+  }
+}
+
 // check if gemini got stuck.
 document.addEventListener("geminiFailed", (data) => {
-  const prompt = data.detail.prompt;
-  const context = data.detail.context;
-  const writer = data.detail.writer;
-  const target = data.detail.target;
-  // TODO ETHAN
-  // update that containers loading wheel to be a X.
 
-  createRetryButton(target, prompt, context, writer);
+  if (numRetries <= 3) {
+    const prompt = data.detail.prompt;
+    const context = data.detail.context;
+    const writer = data.detail.writer;
+    const target = data.detail.target;
+    createRetryButton(target, prompt, context, writer);
+  } else {
+    alert("Gemini is struggling with this job. Please try a different listing. Sorry!");
+
+    //set all to failed to show this job wont work.
+    const statusImgs = document.querySelectorAll(".statusImg");
+    const loaders = document.querySelectorAll(".loader");
+
+    for (const status of statusImgs) {
+      const failImg = document.createElement('img');
+      failImg.src = "/images/Fail.png"
+      failImg.classList.add('statusImg');
+      status.replaceWith(failImg);
+    }
+
+    for (const loader of loaders) {
+      const failImg = document.createElement('img');
+      failImg.src = "/images/Fail.png"
+      failImg.classList.add('statusImg');
+      loader.replaceWith(failImg);
+    }
+  }
 });
 
 // -------------------------------------------------------------------
@@ -140,7 +181,7 @@ async function geminiPromptHandler(prompt, model, target) {
         geminiTarget.innerHTML = marked(resume);
 
         let changes = chunk.split("[CHANGES]")[1];
-        resume_changes_target.innerHTML = marked(changes);
+        geminiTarget.innerHTML = marked(changes);
       } else if (chunk.includes("[RESUME]")) {
         let resume = chunk.split("[RESUME]")[1];
         geminiTarget.innerHTML = marked(resume);
@@ -148,6 +189,11 @@ async function geminiPromptHandler(prompt, model, target) {
         geminiTarget.innerHTML = marked(chunk);
       }
     }
+    const existingButton = target.querySelector('.retry-button');
+    if (existingButton) {
+      existingButton.remove();
+    }
+    loadHandler(target, 1);
   } catch (error) {
     console.error("Gemini failed with error: ", error);
     console.log("prompt: ", prompt);
@@ -162,35 +208,6 @@ async function geminiPromptHandler(prompt, model, target) {
     });
     document.dispatchEvent(geminiFailed);
   }
-  loadHandler(target, 1);
-}
-
-function loadHandler(target, status) {
-  let geminiHeader =  target.querySelector('.header');
-  let loadStatus = geminiHeader.querySelector('.loader');
-
-  if (!loadStatus) {
-    // replace image with a loader
-    let imgToReplace = document.querySelector('img');
-    if (imgToReplace) {
-      const loaderDiv = document.createElement('div');
-      loaderDiv.classList.add('loader');
-      imgToReplace.replaceWith(loaderDiv);
-    } // TODO: ERROR HANDLE?
-  } else {
-    // there is a loader, so we want to replace it with current status
-    if (status === 1) {
-      const successImg = document.createElement('img');
-      successImg.src = "/images/Succeed.png";
-      loadStatus.replaceWith(successImg);
-    } else if (status === 0) {
-      const failImg = document.createElement('img');
-      failImg.src = "/images/Fail.png";
-      loadStatus.replaceWith(failImg);
-    }
-  }
-
-
 }
 
 async function geminiWriterHandler(prompt, context, writer, target) {
@@ -205,6 +222,11 @@ async function geminiWriterHandler(prompt, context, writer, target) {
       response = chunk;
       geminiTarget.innerHTML = marked(response);
     }
+    const existingButton = target.querySelector('.retry-button');
+    if (existingButton) {
+      existingButton.remove();
+    }
+    loadHandler(target, 1);
   } catch (error) {
     console.error("Gemini failed with error: ", error);
     console.log("prompt: ", prompt);
@@ -220,7 +242,6 @@ async function geminiWriterHandler(prompt, context, writer, target) {
     });
     document.dispatchEvent(geminiFailed);
   }
-  loadHandler(target, 1);
 }
 
 // -------------------------------------------------------------------
@@ -234,11 +255,41 @@ function createRetryButton(target, prompt, context, writer) {
     retryButton.classList.add("retry-button");
 
     retryButton.addEventListener("click", async () => {
+      retryButton.remove();
+      numRetries += 1;
+      let geminiTarget = target.querySelector('.textbox');
+      geminiTarget.innerHTML = '';
       await geminiWriterHandler(prompt, context, writer, target);
     });
-
-    // TODO: this should go somewhere else
-    // Append the retry button in container. 
     target.appendChild(retryButton);
+  }
+}
+
+function loadHandler(target, status) {
+  let geminiHeader =  target.querySelector('.header');
+  let loadStatus = geminiHeader.querySelector('.loader');
+
+  if (!loadStatus) {
+
+    let imgToReplace = geminiHeader.querySelector('img');
+    if (imgToReplace) {
+
+      const loaderDiv = document.createElement('div');
+      loaderDiv.classList.add('loader');
+      imgToReplace.replaceWith(loaderDiv);
+    } // TODO: ERROR HANDLE?
+  } else {
+    // there is a loader, so we want to replace it with current status
+    if (status === 1) {
+      const successImg = document.createElement('img');
+      successImg.classList.add('statusImg');
+      successImg.src = "/images/Succeed.png";
+      loadStatus.replaceWith(successImg);
+    } else if (status === 0) {
+      const failImg = document.createElement('img');
+      failImg.src = "/images/Fail.png"
+      failImg.classList.add('statusImg');
+      loadStatus.replaceWith(failImg);
+    }
   }
 }
