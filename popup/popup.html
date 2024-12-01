@@ -72,9 +72,33 @@
       width: 140px;
     }
 
+    .settings-btn {
+      position: absolute;
+      top: 1px;
+      right: 1px;
+      width: 32px;
+      height: 32px;
+      padding: 4px;
+      background-color: transparent;
+      z-index: 2;
+    }
+
+    .settings-btn img {
+      width: 100%;
+      height: 100%;
+      filter: brightness(0) invert(1);
+    }
+
     .dropdown {
       position: relative;
       z-index: 1;
+    }
+
+    .settings-dropdown {
+      position: absolute;
+      top: 1px;
+      right: 1px;
+      z-index: 2;
     }
 
     .dropdown-content {
@@ -84,9 +108,18 @@
       min-width: 160px;
       box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
       z-index: 1;
+    }
+
+    .dropdown .dropdown-content {
       top: 100%;
       left: 50%;
       transform: translateX(-50%);
+    }
+
+    .settings-dropdown .dropdown-content {
+      top: 40px;
+      right: 0;
+      transform: none;
     }
 
     .dropdown-content img {
@@ -121,6 +154,17 @@
 </head>
 <body>
 <canvas id="bubbleCanvas"></canvas>
+<div class="settings-dropdown">
+  <button id="settingsBtn" class="settings-btn">
+    <img src="../images/Settings.png" alt="Settings">
+  </button>
+  <div id="settingsDropdown" class="dropdown-content">
+    Choose a default site:
+    <a href="#" data-site="indeed"><img src='../images/indeed_icon.png' alt="Indeed">Indeed</a>
+    <a href="#" data-site="linkedin"><img src='../images/linkedin_icon.png' alt="LinkedIn">LinkedIn</a>
+    <a href="#" data-site="seek"><img src='../images/seek_icon.png' alt="Seek">Seek</a>
+  </div>
+</div>
 <div class="title">
   APPLYIFY
 </div>
