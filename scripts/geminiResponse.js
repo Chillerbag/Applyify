@@ -76,6 +76,7 @@ document.addEventListener("resumeAvaliable", async () => {
 // check if the scraper told us its found a job
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (message.type === "broadcastJobDetails") {
+    // call function to reset all loaders and textboxes
     await promptGemini(message.jobDetails);
   }
 });
@@ -145,6 +146,10 @@ async function geminiPromptHandler(prompt, model, target) {
         geminiTarget.innerHTML = marked(chunk);
       }
     }
+    const existingButton = target.querySelector('.retry-button');
+    if (existingButton) {
+      existingButton.remove();
+    }
     loadHandler(target, 1);
   } catch (error) {
     console.error("Gemini failed with error: ", error);
@@ -159,6 +164,58 @@ async function geminiPromptHandler(prompt, model, target) {
       },
     });
     document.dispatchEvent(geminiFailed);
+  }
+}
+
+async function geminiWriterHandler(prompt, context, writer, target) {
+  let geminiTarget = target.querySelector('.textbox');
+  loadHandler(target, -1);
+  try {
+    let response = "";
+    const stream = await writer.writeStreaming(prompt, {
+      context: context,
+    });
+    for await (const chunk of stream) {
+      response = chunk;
+      geminiTarget.innerHTML = marked(response);
+    }
+    const existingButton = target.querySelector('.retry-button');
+    if (existingButton) {
+      existingButton.remove();
+    }
+    loadHandler(target, 1);
+  } catch (error) {
+    console.error("Gemini failed with error: ", error);
+    console.log("prompt: ", prompt);
+    geminiTarget.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
+    loadHandler(target, 0);
+    const geminiFailed = new CustomEvent("geminiFailed", {
+      detail: {
+        prompt: prompt,
+        context: context,
+        writer: writer,
+        target: target,
+      },
+    });
+    document.dispatchEvent(geminiFailed);
+  }
+}
+
+// -------------------------------------------------------------------
+//                             Helper functions
+// -------------------------------------------------------------------
+// TODO: change to work depending on current model (prompt, writer, rewriter) rather than just writer
+function createRetryButton(target, prompt, context, writer) {
+  if (target) {
+    const retryButton = document.createElement("button");
+    retryButton.textContent = "Reprompt Gemini";
+    retryButton.classList.add("retry-button");
+
+    retryButton.addEventListener("click", async () => {
+      retryButton.remove();
+      await geminiWriterHandler(prompt, context, writer, target);
+    });
+    target.appendChild(retryButton);
   }
 }
 
@@ -188,55 +245,5 @@ function loadHandler(target, status) {
       failImg.classList.add('statusImg');
       loadStatus.replaceWith(failImg);
     }
-  }
-}
-
-async function geminiWriterHandler(prompt, context, writer, target) {
-  let geminiTarget = target.querySelector('.textbox');
-  loadHandler(target, -1);
-  try {
-    let response = "";
-    const stream = await writer.writeStreaming(prompt, {
-      context: context,
-    });
-    for await (const chunk of stream) {
-      response = chunk;
-      geminiTarget.innerHTML = marked(response);
-    }
-  } catch (error) {
-    console.error("Gemini failed with error: ", error);
-    console.log("prompt: ", prompt);
-    geminiTarget.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
-    loadHandler(target, 0);
-    const geminiFailed = new CustomEvent("geminiFailed", {
-      detail: {
-        prompt: prompt,
-        context: context,
-        writer: writer,
-        target: target,
-      },
-    });
-    document.dispatchEvent(geminiFailed);
-  }
-  loadHandler(target, 1);
-}
-
-// -------------------------------------------------------------------
-//                             Helper functions
-// -------------------------------------------------------------------
-// TODO: change to work depending on current model (prompt, writer, rewriter) rather than just writer
-function createRetryButton(target, prompt, context, writer) {
-  if (target) {
-    const retryButton = document.createElement("button");
-    retryButton.textContent = "Reprompt Gemini";
-    retryButton.classList.add("retry-button");
-
-    retryButton.addEventListener("click", async () => {
-      await geminiWriterHandler(prompt, context, writer, target);
-    });
-
-    // TODO: this should go somewhere else
-    // Append the retry button in container. 
-    target.appendChild(retryButton);
   }
 }
