@@ -149,6 +149,11 @@ async function promptGemini(jobDetails) {
   const context = `Job details: ${jobDetails}`;
   const skills_prompt = `State the skills required for this job in dot points.`;
 
+  // all targets are waiting for gemini to start initially
+  for (const target of targets) {
+    loadHandler(target, 2);
+  }
+
   await geminiWriterHandler(skills_prompt, context, writer, skills_target); // make skills list
 
   if (resumeAvaliable) {
@@ -304,6 +309,11 @@ function loadHandler(target, status) {
       failImg.src = "/images/Fail.png";
       failImg.classList.add("statusImg");
       loadStatus.replaceWith(failImg);
+    } else if (status === 2) {
+      const pauseImg = document.createElement("img");
+      pauseImg.src = "/images/Pause.png";
+      pauseImg.classList.add("statusImg");
+      loadStatus.replaceWith(pauseImg);
     }
   }
 }
