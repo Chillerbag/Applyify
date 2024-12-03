@@ -1,3 +1,9 @@
+/*
+File: backgroundAnim.js
+Description:  the html5 canvas code for the main popup and side panel
+Last modified: 29/11/2024 by Ethan
+*/
+
 const canvas = document.getElementById("bubbleCanvas");
 const context = canvas.getContext("2d");
 

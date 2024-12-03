@@ -1,7 +1,19 @@
-// open the textboxes.
-const showButtons = document.querySelectorAll(".showButton");
-console.log(showButtons.length);
+/*
+File: sidePanel.js
+Description: the code for the sidePanel. Just deals with the show buttons for now. most of the work is in
+  geminiResponse
+Last modified: 3/12/2024 by Ethan
+*/
 
+
+// -------------------------------------------------------------------
+//                                 Constants
+// -------------------------------------------------------------------
+const showButtons = document.querySelectorAll(".showButton");
+
+// -------------------------------------------------------------------
+//                                 Listeners
+// -------------------------------------------------------------------
 showButtons.forEach((button) => {
   button.addEventListener("click", function () {
     const textbox = this.nextElementSibling; // get gemini textbox
