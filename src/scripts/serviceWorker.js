@@ -1,8 +1,18 @@
+/*
+File: serviceWorker.js
+Description:  the background agent which checks if we're on a jobsite, and allows for immediate
+  activation of the sidepanel if so. Also adds a green tick in the case we are on one of the 4 jobsites
+Last modified: 29/11/2024 by Ethan
+*/
+
+// -------------------------------------------------------------------
+//                                 Constants
+// -------------------------------------------------------------------
 const JOB_SITES = {
   "linkedin.com": {
     patterns: ["jobs", "careers", "vacancy"],
   },
-  "seek.com.au": {
+  "seek.com": {
     patterns: ["jobs", "search"],
   },
   "indeed.com": {
@@ -13,6 +23,9 @@ const JOB_SITES = {
   },
 };
 
+// -------------------------------------------------------------------
+//                                 Listeners
+// -------------------------------------------------------------------
 chrome.tabs.onActivated.addListener(async () => {
   let queryOptions = { active: true, lastFocusedWindow: true };
   let [tab] = await chrome.tabs.query(queryOptions);
@@ -41,6 +54,10 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     }
   }
 });
+
+// -------------------------------------------------------------------
+//                            Helper functions
+// -------------------------------------------------------------------
 
 function onSiteMatch(tabId) {
   // send out a message to change what happens onclick of the icon
