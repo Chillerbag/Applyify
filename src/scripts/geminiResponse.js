@@ -149,6 +149,11 @@ async function promptGemini(jobDetails) {
   const context = `Job details: ${jobDetails}`;
   const skills_prompt = `State the skills required for this job in dot points.`;
 
+  // all targets are waiting for gemini to start initially
+  for (const target of targets) {
+    loadHandler(target, 2);
+  }
+
   await geminiWriterHandler(skills_prompt, context, writer, skills_target); // make skills list
 
   if (resumeAvaliable) {
@@ -177,6 +182,7 @@ async function geminiPromptHandler(prompt, model, target) {
   let geminiTarget = target.querySelector(".textbox");
   let resumeTarget = null;
   let changesTarget = null;
+
   loadHandler(target, -1);
   try {
     const stream = await model.promptStreaming(prompt);
@@ -207,6 +213,7 @@ async function geminiPromptHandler(prompt, model, target) {
     }
     loadHandler(target, 1);
     if (changesTarget) {
+      loadHandler(resume_changes_target, -1);
       loadHandler(resume_changes_target, 1);
     }
   } catch (error) {
@@ -214,6 +221,9 @@ async function geminiPromptHandler(prompt, model, target) {
     console.log("prompt: ", prompt);
     geminiTarget.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
     loadHandler(target, 0);
+    if (changesTarget) {
+      loadHandler(resume_changes_target, 0);
+    }
     const geminiFailed = new CustomEvent("geminiFailed", {
       detail: {
         prompt: prompt,
@@ -302,6 +312,11 @@ function loadHandler(target, status) {
       failImg.src = "/images/Fail.png";
       failImg.classList.add("statusImg");
       loadStatus.replaceWith(failImg);
+    } else if (status === 2) {
+      const pauseImg = document.createElement("img");
+      pauseImg.src = "/images/Pause.png";
+      pauseImg.classList.add("statusImg");
+      loadStatus.replaceWith(pauseImg);
     }
   }
 }
