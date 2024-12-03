@@ -170,21 +170,28 @@ async function promptModelSetup() {
 
 async function geminiPromptHandler(prompt, model, target) {
   let geminiTarget = target.querySelector('.textbox');
+  let resumeTarget = null;
+  let changesTarget = null;
   loadHandler(target, -1);
   try {
     const stream = await model.promptStreaming(prompt);
     for await (const chunk of stream) {
       // split up into resume + changes
       if (chunk.includes("[CHANGES]")) {
+        resumeTarget = resume_target.querySelector('.textbox');
+        changesTarget = resume_changes_target.querySelector('.textbox');
+
         let resume = chunk.split("[RESUME]")[1];
         resume = resume.split("[CHANGES]")[0];
-        geminiTarget.innerHTML = marked(resume);
+        resumeTarget.innerHTML = marked(resume);
 
         let changes = chunk.split("[CHANGES]")[1];
-        geminiTarget.innerHTML = marked(changes);
+        changesTarget.innerHTML = marked(changes);
       } else if (chunk.includes("[RESUME]")) {
+        resumeTarget = resume_target.querySelector('.textbox');
+
         let resume = chunk.split("[RESUME]")[1];
-        geminiTarget.innerHTML = marked(resume);
+        resumeTarget.innerHTML = marked(resume);
       } else {
         geminiTarget.innerHTML = marked(chunk);
       }
@@ -194,6 +201,10 @@ async function geminiPromptHandler(prompt, model, target) {
       existingButton.remove();
     }
     loadHandler(target, 1);
+    if (changesTarget) {
+      loadHandler(resume_changes_target, 1);
+    }
+
   } catch (error) {
     console.error("Gemini failed with error: ", error);
     console.log("prompt: ", prompt);
