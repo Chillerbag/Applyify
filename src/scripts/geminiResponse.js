@@ -183,6 +183,7 @@ async function geminiPromptHandler(prompt, model, target) {
   let geminiTarget = target.querySelector(".textbox");
   let resumeTarget = null;
   let changesTarget = null;
+
   loadHandler(target, -1);
   try {
     const stream = await model.promptStreaming(prompt);
@@ -213,6 +214,7 @@ async function geminiPromptHandler(prompt, model, target) {
     }
     loadHandler(target, 1);
     if (changesTarget) {
+      loadHandler(resume_changes_target, -1);
       loadHandler(resume_changes_target, 1);
     }
   } catch (error) {
@@ -220,6 +222,9 @@ async function geminiPromptHandler(prompt, model, target) {
     console.log("prompt: ", prompt);
     geminiTarget.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
     loadHandler(target, 0);
+    if (changesTarget) {
+      loadHandler(resume_changes_target, 0);
+    }
     const geminiFailed = new CustomEvent("geminiFailed", {
       detail: {
         prompt: prompt,
