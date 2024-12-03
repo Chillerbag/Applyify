@@ -8,6 +8,8 @@ Last modified: 29/11/2024 by Ethan
 // -------------------------------------------------------------------
 //                                 Constants
 // -------------------------------------------------------------------
+const POPUP_HTML = "src/popup/popup.html";
+
 const JOB_SITES = {
   "linkedin.com": {
     patterns: ["jobs", "careers", "vacancy"],
@@ -78,7 +80,7 @@ function onSiteMatch(tabId) {
 
 function enableMainPopup(tabId) {
   chrome.action.setPopup({
-    popup: "/popup/popup.html",
+    popup: POPUP_HTML,
   });
 
   chrome.action.setBadgeText({

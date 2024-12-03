@@ -9,6 +9,12 @@ Last modified: 3/12/2024 by Will
 // -------------------------------------------------------------------
 import { marked } from "../../libs/node_modules/marked/lib/marked.esm.js";
 
+// TODO: move all constant references e.g. '.textbox' to here or to a constants file
+
+const SUCCESS_IMG = "../../images/Succeed.png";
+const FAIL_IMG = "../../images/Fail.png";
+const PAUSE_IMG = "../../images/Pause.png";
+
 const CV_TEMPLATE = `
 Write an excellent cover letter using this template:
 
@@ -83,13 +89,26 @@ document.addEventListener("resumeAvaliable", async () => {
 // check if the scraper told us its found a job
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (message.type === "broadcastJobDetails") {
-    onJobCleanup();
+    await onJobCleanup();
     numRetries = 0;
     await promptGemini(message.jobDetails);
   }
 });
 
-function onJobCleanup() {
+async function onJobCleanup() {
+  // force reset the gemini models
+  if (writer) {
+    writer.destroy();
+    writer = await writerModelSetup();
+  }
+
+  if (resume_model) {
+    resume_model.destroy();
+    if (resumeAvaliable) {
+      resume_model = await promptModelSetup();
+    }
+  }
+
   const textboxes = document.querySelectorAll(".textbox");
   const statusImgs = document.querySelectorAll(".statusImg");
   const retryButtons = document.querySelectorAll(".retryButton");
@@ -125,14 +144,14 @@ document.addEventListener("geminiFailed", (data) => {
 
     for (const status of statusImgs) {
       const failImg = document.createElement("img");
-      failImg.src = "/images/Fail.png";
+      failImg.src = FAIL_IMG;
       failImg.classList.add("statusImg");
       status.replaceWith(failImg);
     }
 
     for (const loader of loaders) {
       const failImg = document.createElement("img");
-      failImg.src = "/images/Fail.png";
+      failImg.src = FAIL_IMG;
       failImg.classList.add("statusImg");
       loader.replaceWith(failImg);
     }
@@ -144,28 +163,31 @@ document.addEventListener("geminiFailed", (data) => {
 // -------------------------------------------------------------------
 async function promptGemini(jobDetails) {
   // loaded now!
-  document.getElementById("loadingOverlay").style.display = "none";
-
-  const context = `Job details: ${jobDetails}`;
-  const skills_prompt = `State the skills required for this job in dot points.`;
+  document.getElementById("loadingOverlay").style.display = "none";  
 
   // all targets are waiting for gemini to start initially
   for (const target of targets) {
     loadHandler(target, 2);
   }
 
-  await geminiWriterHandler(skills_prompt, context, writer, skills_target); // make skills list
+  // make skills list
+  const skills_prompt = `State the skills required for this job in dot points. Do not include any other information. Do not include a header or title in your response.`;
+  const context = `Job details: ${jobDetails}`;
+  await geminiWriterHandler(skills_prompt, context, writer, skills_target);
 
+  // update resume
   if (resumeAvaliable) {
     const resume_obj = await chrome.storage.local.get(["resume"]);
     const resume_text = resume_obj.resume;
     const resume_prompt = `State "[RESUME]" then rewrite the resume to fit the job description. Only use information from the resume. After the resume has been completely rewritten, state "[CHANGES]" and state what has been changed in the resume, and why. Resume: [${resume_text}] Job advertisement: [${jobDetails}]`;
     await geminiPromptHandler(resume_prompt, resume_model, resume_target);
   } else {
-    resume_target.innerHTML = "please upload your resume to use this feature!";
+    resume_target.innerHTML = "<span style='color: orange;'>Please upload your resume to use this feature!</span>";
+    resume_changes_target.innerHTML = "<span style='color: orange;'>Please upload your resume to use this feature!</span>";
   }
 
-  await geminiWriterHandler(CV_TEMPLATE, context, writer, cv_target); // make cv suggestion
+  // make cv suggestion
+  await geminiWriterHandler(CV_TEMPLATE, context, writer, cv_target);
 }
 
 async function writerModelSetup() {
@@ -178,6 +200,7 @@ async function promptModelSetup() {
   return await ai.languageModel.create();
 }
 
+// TODO: generalise this function. currently very hardcoded for the resume
 async function geminiPromptHandler(prompt, model, target) {
   let geminiTarget = target.querySelector(".textbox");
   let resumeTarget = null;
@@ -217,21 +240,24 @@ async function geminiPromptHandler(prompt, model, target) {
       loadHandler(resume_changes_target, 1);
     }
   } catch (error) {
-    console.error("Gemini failed with error: ", error);
-    console.log("prompt: ", prompt);
-    geminiTarget.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
-    loadHandler(target, 0);
-    if (changesTarget) {
-      loadHandler(resume_changes_target, 0);
+    if (error.name !== "AbortError" && error.name !== "InvalidStateError") {
+      console.error("Gemini failed with error name: ", error.name);
+      console.error("Gemini failed with error: ", error.message);
+      console.log("prompt: ", prompt);
+      geminiTarget.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
+      loadHandler(target, 0);
+      if (changesTarget) {
+        loadHandler(resume_changes_target, 0);
+      }
+      const geminiFailed = new CustomEvent("geminiFailed", {
+        detail: {
+          prompt: prompt,
+          model: model,
+          target: target,
+        },
+      });
+      document.dispatchEvent(geminiFailed);
     }
-    const geminiFailed = new CustomEvent("geminiFailed", {
-      detail: {
-        prompt: prompt,
-        model: model,
-        target: target,
-      },
-    });
-    document.dispatchEvent(geminiFailed);
   }
 }
 
@@ -253,26 +279,30 @@ async function geminiWriterHandler(prompt, context, writer, target) {
     }
     loadHandler(target, 1);
   } catch (error) {
-    console.error("Gemini failed with error: ", error);
-    console.log("prompt: ", prompt);
-    geminiTarget.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
-    loadHandler(target, 0);
-    const geminiFailed = new CustomEvent("geminiFailed", {
-      detail: {
-        prompt: prompt,
-        context: context,
-        writer: writer,
-        target: target,
-      },
-    });
-    document.dispatchEvent(geminiFailed);
+    if (error.name !== "AbortError" && error.name !== "InvalidStateError") {
+      console.error("Gemini failed with error name: ", error.name);
+      console.error("Gemini failed with error: ", error.message);
+      console.log("prompt: ", prompt);
+      console.log("context: ", context);
+      geminiTarget.innerHTML = `<span style='color: red;'>**Error!** The model had issues with this job. Please try again!</span>`;
+      loadHandler(target, 0);
+      const geminiFailed = new CustomEvent("geminiFailed", {
+        detail: {
+          prompt: prompt,
+          context: context,
+          writer: writer,
+          target: target,
+        },
+      });
+      document.dispatchEvent(geminiFailed);
+    }
   }
 }
 
 // -------------------------------------------------------------------
 //                             Helper functions
 // -------------------------------------------------------------------
-function createRetryButton(target, prompt, context, writer) {
+function createRetryButton(target, prompt, context, model) {
   if (target) {
     const retryButton = document.createElement("button");
     retryButton.textContent = "Reprompt Gemini";
@@ -283,7 +313,13 @@ function createRetryButton(target, prompt, context, writer) {
       numRetries += 1;
       let geminiTarget = target.querySelector(".textbox");
       geminiTarget.innerHTML = "";
-      await geminiWriterHandler(prompt, context, writer, target);
+      
+      // TODO: find better way to check which model is given. maybe use constants to track current model in use?
+      if (target === resume_target || target === resume_changes_target) {
+        await geminiPromptHandler(prompt, model, target);
+      } else {
+        await geminiWriterHandler(prompt, context, model, target);
+      }
     });
     target.appendChild(retryButton);
   }
@@ -305,16 +341,16 @@ function loadHandler(target, status) {
     if (status === 1) {
       const successImg = document.createElement("img");
       successImg.classList.add("statusImg");
-      successImg.src = "/images/Succeed.png";
+      successImg.src = SUCCESS_IMG;
       loadStatus.replaceWith(successImg);
     } else if (status === 0) {
       const failImg = document.createElement("img");
-      failImg.src = "/images/Fail.png";
+      failImg.src = FAIL_IMG;
       failImg.classList.add("statusImg");
       loadStatus.replaceWith(failImg);
     } else if (status === 2) {
       const pauseImg = document.createElement("img");
-      pauseImg.src = "/images/Pause.png";
+      pauseImg.src = PAUSE_IMG;
       pauseImg.classList.add("statusImg");
       loadStatus.replaceWith(pauseImg);
     }
