@@ -195,6 +195,32 @@
         font-size: 24px;
       }
 
+      .button-group {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .button-group .showButton,
+      .button-group .copyButton {
+        display: inline-block;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.3s;
+        background-color: #4a4a4a;
+        color: #ffffff;
+      }
+
+      .button-group .showButton:hover,
+      .button-group .copyButton:hover {
+        background-color: #6a6a6a;
+        transform: scale(1.05);
+      }
+
       @keyframes spin {
         0% {
           transform: rotate(0deg);
@@ -233,12 +259,20 @@
         <h1>Skills Needed</h1>
         <div class="loader"></div>
       </div>
-      <button
-        class="showButton"
-        style="font-family: 'Roboto', Arial, sans-serif"
-      >
-        Show
-      </button>
+      <div class="button-group">
+        <button
+          class="showButton"
+          style="font-family: 'Roboto', Arial, sans-serif"
+        >
+          Show
+        </button>
+        <button
+          class="copyButton"
+          style="font-family: 'Roboto', Arial, sans-serif"
+        >
+          Copy
+        </button>
+      </div>
       <div class="textbox"></div>
     </div>
 
@@ -251,12 +285,20 @@
         <h1>Suggested Resume</h1>
         <div class="loader"></div>
       </div>
-      <button
-        class="showButton"
-        style="font-family: 'Roboto', Arial, sans-serif"
-      >
-        Show
-      </button>
+      <div class="button-group">
+        <button
+          class="showButton"
+          style="font-family: 'Roboto', Arial, sans-serif"
+        >
+          Show
+        </button>
+        <button
+          class="copyButton"
+          style="font-family: 'Roboto', Arial, sans-serif"
+        >
+          Copy
+        </button>
+      </div>
       <div class="textbox"></div>
     </div>
 
@@ -269,12 +311,20 @@
         <h1>Changes made to Resume</h1>
         <div class="loader"></div>
       </div>
-      <button
-        class="showButton"
-        style="font-family: 'Roboto', Arial, sans-serif"
-      >
-        Show
-      </button>
+      <div class="button-group">
+        <button
+          class="showButton"
+          style="font-family: 'Roboto', Arial, sans-serif"
+        >
+          Show
+        </button>
+        <button
+          class="copyButton"
+          style="font-family: 'Roboto', Arial, sans-serif"
+        >
+          Copy
+        </button>
+      </div>
       <div class="textbox"></div>
     </div>
 
@@ -287,12 +337,20 @@
         <h1>Suggested CV</h1>
         <div class="loader"></div>
       </div>
-      <button
-        class="showButton"
-        style="font-family: 'Roboto', Arial, sans-serif"
-      >
-        Show
-      </button>
+      <div class="button-group">
+        <button
+          class="showButton"
+          style="font-family: 'Roboto', Arial, sans-serif"
+        >
+          Show
+        </button>
+        <button
+          class="copyButton"
+          style="font-family: 'Roboto', Arial, sans-serif"
+        >
+          Copy
+        </button>
+      </div>
       <div class="textbox"></div>
     </div>
 
