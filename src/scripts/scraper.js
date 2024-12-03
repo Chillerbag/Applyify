@@ -60,12 +60,15 @@ async function parseWebpage(html_class, isDynamic, html_dynamic) {
     // grabbed data yay!
     dataGrabbed = true;
 
-    chrome.runtime.sendMessage({ 
-      type: 'broadcastJobDetails',
-      jobDetails: jobDetails 
-    }, function () {
-      console.log("Job details sent to service worker");
-    });
+    chrome.runtime.sendMessage(
+      {
+        type: "broadcastJobDetails",
+        jobDetails: jobDetails,
+      },
+      function () {
+        console.log("Job details sent to service worker");
+      }
+    );
   } else if (!dataGrabbed) {
     console.log("Waiting for site data...");
   }
@@ -79,7 +82,10 @@ async function checkUrl() {
     await resetData();
     currentUrl = grabURL();
 
-    if (currentUrl.includes("linkedin.com") && currentUrl.includes("?currentJobId=")) {
+    if (
+      currentUrl.includes("linkedin.com") &&
+      currentUrl.includes("?currentJobId=")
+    ) {
       console.log("linkedin job page detected!");
       html_div = LINKEDIN_JOB_DETAILS;
       use_dynamic_scraping = true;
