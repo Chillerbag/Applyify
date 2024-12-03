@@ -7,7 +7,7 @@ Last modified: 21/11/2024 by Ethan
 // -------------------------------------------------------------------
 //                                 Constants
 // -------------------------------------------------------------------
-import { marked } from "../node_modules/marked/lib/marked.esm.js"
+import { marked } from "../../libs/node_modules/marked/lib/marked.esm.js";
 
 const CV_TEMPLATE = `
 Write an excellent cover letter using this template:

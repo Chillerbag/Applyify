@@ -11,7 +11,7 @@
   },
   "content_scripts": [
     {
-      "js": ["scripts/scraper.js", "scripts/utils.js"],
+      "js": ["src/scripts/scraper.js", "src/scripts/utils.js"],
       "matches": [
         "https://www.linkedin.com/jobs/*",
         "https://www.linkedin.com/job/*",
@@ -22,7 +22,7 @@
     }
   ],
   "action": {
-    "default_popup": "popup/popup.html",
+    "default_popup": "src/popup/popup.html",
     "default_icon": "images/icon.png"
   },
   "permissions": [
@@ -32,10 +32,10 @@
     "activeTab"
   ],
   "background": {
-    "service_worker": "scripts/serviceWorker.js"
+    "service_worker": "src/scripts/serviceWorker.js"
   },
   "side_panel": {
-    "default_path": "sidepanel/sidePanel.html"
+    "default_path": "src/sidepanel/sidePanel.html"
   },
   "host_permissions": [
     "https://www.linkedin.com/*",
