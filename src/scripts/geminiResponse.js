@@ -42,7 +42,12 @@ const cv_target = document.getElementById("CVContainer");
 const skills_target = document.getElementById("skillChecklistContainer");
 const resume_target = document.getElementById("updatedResumeContainer");
 const resume_changes_target = document.getElementById("resumeChangesContainer");
-const targets = [cv_target, skills_target, resume_target, resume_changes_target];
+const targets = [
+  cv_target,
+  skills_target,
+  resume_target,
+  resume_changes_target,
+];
 
 // writer and rewriter should be constants we populate on document load.
 let writer = null;
@@ -92,8 +97,8 @@ function onJobCleanup() {
     text.innerHTML = "";
   }
   for (const status of statusImgs) {
-    const loaderDiv = document.createElement('div');
-    loaderDiv.classList.add('loader');
+    const loaderDiv = document.createElement("div");
+    loaderDiv.classList.add("loader");
     status.replaceWith(loaderDiv);
   }
   for (const retryButton of retryButtons) {
@@ -103,7 +108,6 @@ function onJobCleanup() {
 
 // check if gemini got stuck.
 document.addEventListener("geminiFailed", (data) => {
-
   if (numRetries <= 3) {
     const prompt = data.detail.prompt;
     const context = data.detail.context;
@@ -111,23 +115,25 @@ document.addEventListener("geminiFailed", (data) => {
     const target = data.detail.target;
     createRetryButton(target, prompt, context, writer);
   } else {
-    alert("Gemini is struggling with this job. Please try a different listing. Sorry!");
+    alert(
+      "Gemini is struggling with this job. Please try a different listing. Sorry!"
+    );
 
     //set all to failed to show this job wont work.
     const statusImgs = document.querySelectorAll(".statusImg");
     const loaders = document.querySelectorAll(".loader");
 
     for (const status of statusImgs) {
-      const failImg = document.createElement('img');
-      failImg.src = "/images/Fail.png"
-      failImg.classList.add('statusImg');
+      const failImg = document.createElement("img");
+      failImg.src = "/images/Fail.png";
+      failImg.classList.add("statusImg");
       status.replaceWith(failImg);
     }
 
     for (const loader of loaders) {
-      const failImg = document.createElement('img');
-      failImg.src = "/images/Fail.png"
-      failImg.classList.add('statusImg');
+      const failImg = document.createElement("img");
+      failImg.src = "/images/Fail.png";
+      failImg.classList.add("statusImg");
       loader.replaceWith(failImg);
     }
   }
@@ -138,7 +144,7 @@ document.addEventListener("geminiFailed", (data) => {
 // -------------------------------------------------------------------
 async function promptGemini(jobDetails) {
   // loaded now!
-  document.getElementById('loadingOverlay').style.display = 'none';
+  document.getElementById("loadingOverlay").style.display = "none";
 
   const context = `Job details: ${jobDetails}`;
   const skills_prompt = `State the skills required for this job in dot points.`;
@@ -169,7 +175,7 @@ async function promptModelSetup() {
 }
 
 async function geminiPromptHandler(prompt, model, target) {
-  let geminiTarget = target.querySelector('.textbox');
+  let geminiTarget = target.querySelector(".textbox");
   let resumeTarget = null;
   let changesTarget = null;
   loadHandler(target, -1);
@@ -178,8 +184,8 @@ async function geminiPromptHandler(prompt, model, target) {
     for await (const chunk of stream) {
       // split up into resume + changes
       if (chunk.includes("[CHANGES]")) {
-        resumeTarget = resume_target.querySelector('.textbox');
-        changesTarget = resume_changes_target.querySelector('.textbox');
+        resumeTarget = resume_target.querySelector(".textbox");
+        changesTarget = resume_changes_target.querySelector(".textbox");
 
         let resume = chunk.split("[RESUME]")[1];
         resume = resume.split("[CHANGES]")[0];
@@ -188,7 +194,7 @@ async function geminiPromptHandler(prompt, model, target) {
         let changes = chunk.split("[CHANGES]")[1];
         changesTarget.innerHTML = marked(changes);
       } else if (chunk.includes("[RESUME]")) {
-        resumeTarget = resume_target.querySelector('.textbox');
+        resumeTarget = resume_target.querySelector(".textbox");
 
         let resume = chunk.split("[RESUME]")[1];
         resumeTarget.innerHTML = marked(resume);
@@ -196,7 +202,7 @@ async function geminiPromptHandler(prompt, model, target) {
         geminiTarget.innerHTML = marked(chunk);
       }
     }
-    const existingButton = target.querySelector('.retry-button');
+    const existingButton = target.querySelector(".retry-button");
     if (existingButton) {
       existingButton.remove();
     }
@@ -204,7 +210,6 @@ async function geminiPromptHandler(prompt, model, target) {
     if (changesTarget) {
       loadHandler(resume_changes_target, 1);
     }
-
   } catch (error) {
     console.error("Gemini failed with error: ", error);
     console.log("prompt: ", prompt);
@@ -222,7 +227,7 @@ async function geminiPromptHandler(prompt, model, target) {
 }
 
 async function geminiWriterHandler(prompt, context, writer, target) {
-  let geminiTarget = target.querySelector('.textbox');
+  let geminiTarget = target.querySelector(".textbox");
   loadHandler(target, -1);
   try {
     let response = "";
@@ -233,7 +238,7 @@ async function geminiWriterHandler(prompt, context, writer, target) {
       response = chunk;
       geminiTarget.innerHTML = marked(response);
     }
-    const existingButton = target.querySelector('.retry-button');
+    const existingButton = target.querySelector(".retry-button");
     if (existingButton) {
       existingButton.remove();
     }
@@ -268,8 +273,8 @@ function createRetryButton(target, prompt, context, writer) {
     retryButton.addEventListener("click", async () => {
       retryButton.remove();
       numRetries += 1;
-      let geminiTarget = target.querySelector('.textbox');
-      geminiTarget.innerHTML = '';
+      let geminiTarget = target.querySelector(".textbox");
+      geminiTarget.innerHTML = "";
       await geminiWriterHandler(prompt, context, writer, target);
     });
     target.appendChild(retryButton);
@@ -277,29 +282,27 @@ function createRetryButton(target, prompt, context, writer) {
 }
 
 function loadHandler(target, status) {
-  let geminiHeader =  target.querySelector('.header');
-  let loadStatus = geminiHeader.querySelector('.loader');
+  let geminiHeader = target.querySelector(".header");
+  let loadStatus = geminiHeader.querySelector(".loader");
 
   if (!loadStatus) {
-
-    let imgToReplace = geminiHeader.querySelector('img');
+    let imgToReplace = geminiHeader.querySelector("img");
     if (imgToReplace) {
-
-      const loaderDiv = document.createElement('div');
-      loaderDiv.classList.add('loader');
+      const loaderDiv = document.createElement("div");
+      loaderDiv.classList.add("loader");
       imgToReplace.replaceWith(loaderDiv);
     } // TODO: ERROR HANDLE?
   } else {
     // there is a loader, so we want to replace it with current status
     if (status === 1) {
-      const successImg = document.createElement('img');
-      successImg.classList.add('statusImg');
+      const successImg = document.createElement("img");
+      successImg.classList.add("statusImg");
       successImg.src = "/images/Succeed.png";
       loadStatus.replaceWith(successImg);
     } else if (status === 0) {
-      const failImg = document.createElement('img');
-      failImg.src = "/images/Fail.png"
-      failImg.classList.add('statusImg');
+      const failImg = document.createElement("img");
+      failImg.src = "/images/Fail.png";
+      failImg.classList.add("statusImg");
       loadStatus.replaceWith(failImg);
     }
   }
