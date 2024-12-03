@@ -1,3 +1,9 @@
+/*
+File: scraper.js
+Description: the scraper for all job sites. works generically!
+Last modified: 3/12/2024 by Will
+*/
+
 const LINKEDIN_JOB_DETAILS = ".jobs-search__job-details--container";
 const LINKEDIN_DYNAMIC_JOB = "ltr";
 const LINKEDIN_DYNAMIC_COMPANY = "jobs-company__box";
@@ -100,8 +106,6 @@ async function checkUrl() {
       html_div = SEEK_JOB_DETAILS;
       use_dynamic_scraping = false;
     }
-
-    // TODO: add more sites
   }
 }
 

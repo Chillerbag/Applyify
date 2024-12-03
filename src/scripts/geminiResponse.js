@@ -1,7 +1,7 @@
 /*
 File: geminiResponse.js
 Description: The handler for all gemini related calls. Responds to the scraper's message that we've found a job.
-Last modified: 21/11/2024 by Ethan 
+Last modified: 3/12/2024 by Will
 */
 
 // -------------------------------------------------------------------
@@ -155,7 +155,6 @@ async function promptGemini(jobDetails) {
     const resume_obj = await chrome.storage.local.get(["resume"]);
     const resume_text = resume_obj.resume;
     const resume_prompt = `State "[RESUME]" then rewrite the resume to fit the job description. Only use information from the resume. After the resume has been completely rewritten, state "[CHANGES]" and state what has been changed in the resume, and why. Resume: [${resume_text}] Job advertisement: [${jobDetails}]`;
-    // FIXME: POINTLESS REFERENCE PASSING writer is now globally scoped to this file.
     await geminiPromptHandler(resume_prompt, resume_model, resume_target);
   } else {
     resume_target.innerHTML = "please upload your resume to use this feature!";
@@ -263,7 +262,6 @@ async function geminiWriterHandler(prompt, context, writer, target) {
 // -------------------------------------------------------------------
 //                             Helper functions
 // -------------------------------------------------------------------
-// TODO: change to work depending on current model (prompt, writer, rewriter) rather than just writer
 function createRetryButton(target, prompt, context, writer) {
   if (target) {
     const retryButton = document.createElement("button");
@@ -291,7 +289,7 @@ function loadHandler(target, status) {
       const loaderDiv = document.createElement("div");
       loaderDiv.classList.add("loader");
       imgToReplace.replaceWith(loaderDiv);
-    } // TODO: ERROR HANDLE?
+    }
   } else {
     // there is a loader, so we want to replace it with current status
     if (status === 1) {

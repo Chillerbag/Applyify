@@ -2,7 +2,7 @@
 File: popup.js
 Description: Handles opening the chosen job site and sidepanel. Contains dropdowns for selecting and saving
   default job sites using Chrome's storage API.
-Last modified: 1/12/2024
+Last modified: 1/12/2024 by Ethan
 */
 
 // -------------------------------------------------------------------

@@ -1,5 +1,21 @@
-// open the textboxes.
+/*
+File: sidePanel.js
+Description: the code for the sidePanel. Just deals with the show buttons for now. most of the work is in
+  geminiResponse
+Last modified: 3/12/2024 by Ethan
+*/
+
+
+// -------------------------------------------------------------------
+//                                 Constants
+// -------------------------------------------------------------------
+
 const showButtons = document.querySelectorAll(".showButton");
+
+// -------------------------------------------------------------------
+//                                 Listeners
+// -------------------------------------------------------------------
+
 showButtons.forEach((button) => {
   button.addEventListener("click", function () {
     // get textbox

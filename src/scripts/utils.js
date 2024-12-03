@@ -4,6 +4,9 @@ Description: storing utils. Runs as a content script, so we can execute it anywh
 Last modified: 21/11/2024 by Ethan 
 */
 
+// -------------------------------------------------------------------
+//                             Helper functions
+// -------------------------------------------------------------------
 function errorBoxCreator(target, errorMsg) {
   var errorDiv = document.createElement("Div");
   errorDiv.id = "errorBox";
