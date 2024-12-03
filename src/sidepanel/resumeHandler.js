@@ -1,6 +1,6 @@
 /*
 File: resumeHandler.js
-Description: deals with resumr upload and signalling a resume is avaliable
+Description: deals with resume upload and signalling a resume is available
 Last modified: 29/11/2024 by Ethan
 */
 
@@ -91,6 +91,6 @@ async function updateResumeUploadStatus(uploaded) {
 
 // tell geminiResponse we can use the resume thing.
 function permitResumeGeminiUpdating() {
-  const resumeAllowed = new Event("resumeAvaliable");
+  const resumeAllowed = new Event("resumeAvailable");
   document.dispatchEvent(resumeAllowed);
 }
