@@ -303,6 +303,7 @@ function loadHandler(target, status) {
       loaderDiv.classList.add("loader");
       imgToReplace.replaceWith(loaderDiv);
     }
+    calculating = true;
   } else {
     // there is a loader, so we want to replace it with current status
     if (status === 1) {
@@ -321,6 +322,7 @@ function loadHandler(target, status) {
       pauseImg.classList.add("statusImg");
       loadStatus.replaceWith(pauseImg);
     }
+    calculating = false;
   }
 }
 
