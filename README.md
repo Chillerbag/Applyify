@@ -77,7 +77,7 @@ Here you can see how the icon changes to indicate you're on a job site our app s
 
 ### Resume Submission
 
-Here you can see the resume submission form, that opens in the sidepanel, and gives you information on the resume you submitted, including when.
+Here you can see the resume submission form that opens in the sidepanel. This gives you information on the resume you submitted, including when, and what the resume file name is.
 
 <br>
 <p align="center">
