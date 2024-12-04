@@ -4,9 +4,9 @@
 
 Applyify is William Spongberg's and Ethan Hawkins' entry into the Chrome Built-In AI Challenge hackathon: <https://googlechromeai.devpost.com/>
 
-Applify is an assistant designed to streamline the job application process by focusing on the essentials: understanding job requirements, updating your resume, and crafting a compelling cover letter.
+Applify is an assistant designed to streamline the job application process.
 
-It features a Google Gemini-powered side panel that integrates with your favorite job posting sites, summarizing the necessary skills for each job, suggesting updates to your uploaded resume, and providing a draft for your cover letter.
+It features a Google Gemini-powered side panel that integrates with your favorite job posting sites, summarising the necessary skills for each job, updating your resume for you, and providing a draft for your cover letter.
 
 In today's highly competitive job market, it can feel like the odds are stacked against job seekers. Applify aims to level the playing field and empower job seekers.
 
