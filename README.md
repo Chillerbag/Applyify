@@ -2,13 +2,13 @@
 
 ## Description
 
-Applyify is William Spongberg's and Ethan Hawkins' entry into the Chrome Built-In AI Challenge hackathon: <https://googlechromeai.devpost.com/>
+Applyify is Ethan Hawkins' and William Spongberg's entry into the Chrome Built-In AI Challenge hackathon: <https://googlechromeai.devpost.com/>
 
-Applify is an assistant designed to streamline the job application process by focusing on the essentials: understanding job requirements, updating your resume, and crafting a compelling cover letter.
+In today's highly competitive job market, it can feel like the odds are stacked against us. We aim to level the playing field and empower job seekers through the power of private, locally-run AI that can be accessed directly from your browser.
 
-It features a Google Gemini-powered side panel that integrates with your favorite job posting sites, summarizing the necessary skills for each job, suggesting updates to your uploaded resume, and providing a draft for your cover letter.
+Applify is an AI assistant designed to streamline the job application process. It features a Google Gemini Nano-powered side panel that integrates with your favorite job posting sites and summarises the necessary skills, updates your resume to be more relevant to the job description and provides a new cover letter.
 
-In today's highly competitive job market, it can feel like the odds are stacked against job seekers. Applify aims to level the playing field and empower job seekers.
+Let Applify do the heavy lifting for you, so you can focus on what really matters: landing your dream job.
 
 ## Table of Contents
 
@@ -31,12 +31,12 @@ In today's highly competitive job market, it can feel like the odds are stacked 
 ## Installation
 
 1) Install the latest build of Chrome Canary. You'll need Version 128.0.6545.0 or above. Read about built-in AI over at: <https://developer.chrome.com/docs/ai/built-in>
-2) Open a new tab in Chrome, go to chrome://flags/#optimization-guide-on-device-model
+2) Open a new tab in Chrome and go to chrome://flags/#optimization-guide-on-device-model
 3) Select Enabled BypassPerfRequirement
 4) Go to chrome://flags/#prompt-api-for-gemini-nano
 5) Select Enabled
 6) Do the same for all Gemini Nano flags.
-7) Restart Chrome. Send the following command to the console.
+7) Restart Chrome, and then send the following command to the console:
 
 ```javascript
 (await ai.languageModel.capabilities()).available;
@@ -49,16 +49,16 @@ git clone https://github.com/Chillerbag/Applyify
 ```
 
 9) Go to chrome://extensions
-10) select "load unpacked". you may need to enable developer mode.
-11) select the place where you cloned this repo (root)
-12) you should be done! use the following doc if you experience errors with Gemini: <https://docs.google.com/document/d/18otm-D9xhn_XyObbQrc1v7SI-7lBX3ynZkjEpiS1V04/edit?pli=1&tab=t.0>
+10) Select "load unpacked". you may need to enable developer mode.
+11) Select the place where you cloned this repo (root)
+12) You should be done! Use the following doc if you experience errors with Gemini: <https://docs.google.com/document/d/18otm-D9xhn_XyObbQrc1v7SI-7lBX3ynZkjEpiS1V04/edit?pli=1&tab=t.0>
 
 ## Features
 
-- **Job site sensitivity**: When on one of our supported websites, the Applyify icon in your chrome extensions will show a green tick, indicating Applyify is ready to go. It'll open straight into the sidepanel, instead of the main menu.
+- **Job site sensitivity**: When on one of our supported websites, the Applyify icon in your chrome extensions will show a green tick, indicating Applyify is ready to go. It'll open straight into the sidepanel, instead of to the main menu.
 - **Skill Analysis**: When the user navigates to a job posting, Gemini will use the writer API to write down a concise list of the skills desired by the job poster.
-- **Resume Upload and Rewriting**: You can upload your resume to local storage (not put online anywhere!) for Gemini to update using the prompter API when it sees a job listing. We make Gemini tell you exactly what it changed.
-- **Cover letter writing**: Gemini will write a cover letter for any job you browse.
+- **Resume Upload and Rewriting**: You can upload your resume to local storage (not put online anywhere!) for Gemini to update using the Prompt API when it sees a job listing. We make Gemini tell you exactly what it changed, so you can be sure it's accurate and relevant.
+- **Cover letter writing**: Gemini will write a relevant cover letter for any job you browse.
 
 ## Screenshots
 
@@ -77,7 +77,7 @@ Here you can see how the icon changes to indicate you're on a job site our app s
 
 ### Resume Submission
 
-Here you can see the resume submission form, that opens in the sidepanel, and gives you information on the resume you submitted, including when.
+Here you can see the resume submission form that opens in the sidepanel. This gives you information on the resume you submitted, including when, and what the resume file name is.
 
 <br>
 <p align="center">
