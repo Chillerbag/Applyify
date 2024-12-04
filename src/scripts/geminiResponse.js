@@ -213,7 +213,7 @@ async function geminiPromptHandler(prompt, model, target) {
     }
   } catch (error) {
     if (error.name !== "AbortError" && error.name !== "InvalidStateError") {
-      console.error(`Gemini (Prompt API) failed with error: [${error.name}] ${error.message} for prompt [${prompt}]`);
+      console.error(`Gemini (Prompt API) failed with error: [${error.name}] ${error.message}`);
       geminiTarget.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
       loadHandler(target, 0);
       if (changesTarget) {
@@ -250,7 +250,7 @@ async function geminiWriterHandler(prompt, context, writer, target) {
     loadHandler(target, 1);
   } catch (error) {
     if (error.name !== "AbortError" && error.name !== "InvalidStateError") {
-      console.error(`Gemini (Writer API) failed with error: [${error.name}] ${error.message} for prompt [${prompt}] and context [${context}]`);
+      console.error(`Gemini (Writer API) failed with error: [${error.name}] ${error.message}`);
       geminiTarget.innerHTML = `<span style='color: red;'>**Error!** The model had issues with this job. Please try again!</span>`;
       loadHandler(target, 0);
       const geminiFailed = new CustomEvent("geminiFailed", {
