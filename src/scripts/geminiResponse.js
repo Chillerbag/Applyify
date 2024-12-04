@@ -1,7 +1,7 @@
 /*
 File: geminiResponse.js
 Description: The handler for all gemini related calls. Responds to the scraper's message that we've found a job.
-Last modified: 3/12/2024 by Will
+Last modified: 4/12/2024 by Will
 */
 
 // -------------------------------------------------------------------
@@ -43,6 +43,9 @@ Thank you for considering my application. I look forward to the opportunity to d
 Sincerely,
 [Your Name]`;
 
+const SKILLS_PROMPT = `State the skills required for this job in dot points. Do not include any other information. Do not include a header or title in your response.`;
+const RESUME_PROMPT = `State "[RESUME]" then rewrite the resume to fit the job description. Only use information from the resume. After the resume has been completely rewritten, state "[CHANGES]" and state what has been changed in the resume, and why.`
+
 // where we ask gemini to update
 const cv_target = document.getElementById("CVContainer");
 const skills_target = document.getElementById("skillChecklistContainer");
@@ -63,7 +66,7 @@ let resume_model = null;
 let numRetries = 0;
 
 // flags for executing certain things
-let resumeAvaliable = false;
+let resumeAvailable = false;
 
 // -------------------------------------------------------------------
 //                                 Listeners
@@ -75,14 +78,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     //rewriter = await writerModelSetup();
   } catch (error) {
     for (const target of targets) {
-      target.innerHTML = `<span style='color: red;'>**error! Gemini is not availiable to you yet. please check your install of Gemini and try again.</span>`;
+      target.innerHTML = `<span style='color: red;'>**error! Gemini is not available to you yet. please check your install of Gemini and try again.</span>`;
     }
   }
 });
 
 // check if a resume has been uploaded, if so, we can do the resume updates.
-document.addEventListener("resumeAvaliable", async () => {
-  resumeAvaliable = true;
+document.addEventListener("resumeAvailable", async () => {
+  resumeAvailable = true;
   resume_model = await promptModelSetup();
 });
 
@@ -94,36 +97,6 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     await promptGemini(message.jobDetails);
   }
 });
-
-async function onJobCleanup() {
-  // force reset the gemini models
-  if (writer) {
-    writer.destroy();
-    writer = await writerModelSetup();
-  }
-
-  if (resume_model) {
-    resume_model.destroy();
-    if (resumeAvaliable) {
-      resume_model = await promptModelSetup();
-    }
-  }
-
-  const textboxes = document.querySelectorAll(".textbox");
-  const statusImgs = document.querySelectorAll(".statusImg");
-  const retryButtons = document.querySelectorAll(".retryButton");
-  for (const text of textboxes) {
-    text.innerHTML = "";
-  }
-  for (const status of statusImgs) {
-    const loaderDiv = document.createElement("div");
-    loaderDiv.classList.add("loader");
-    status.replaceWith(loaderDiv);
-  }
-  for (const retryButton of retryButtons) {
-    retryButton.remove();
-  }
-}
 
 // check if gemini got stuck.
 document.addEventListener("geminiFailed", (data) => {
@@ -161,6 +134,16 @@ document.addEventListener("geminiFailed", (data) => {
 // -------------------------------------------------------------------
 //                             Gemini functions
 // -------------------------------------------------------------------
+async function writerModelSetup() {
+  return await ai.writer.create({
+    tone: "formal",
+  });
+}
+
+async function promptModelSetup() {
+  return await ai.languageModel.create();
+}
+
 async function promptGemini(jobDetails) {
   // loaded now!
   document.getElementById("loadingOverlay").style.display = "none";  
@@ -171,15 +154,14 @@ async function promptGemini(jobDetails) {
   }
 
   // make skills list
-  const skills_prompt = `State the skills required for this job in dot points. Do not include any other information. Do not include a header or title in your response.`;
   const context = `Job details: ${jobDetails}`;
-  await geminiWriterHandler(skills_prompt, context, writer, skills_target);
+  await geminiWriterHandler(SKILLS_PROMPT, context, writer, skills_target);
 
   // update resume
-  if (resumeAvaliable) {
+  if (resumeAvailable) {
     const resume_obj = await chrome.storage.local.get(["resume"]);
     const resume_text = resume_obj.resume;
-    const resume_prompt = `State "[RESUME]" then rewrite the resume to fit the job description. Only use information from the resume. After the resume has been completely rewritten, state "[CHANGES]" and state what has been changed in the resume, and why. Resume: [${resume_text}] Job advertisement: [${jobDetails}]`;
+    const resume_prompt = RESUME_PROMPT + `Resume: [${resume_text}] Job advertisement: [${jobDetails}]`;
     await geminiPromptHandler(resume_prompt, resume_model, resume_target);
   } else {
     resume_target.innerHTML = "<span style='color: orange;'>Please upload your resume to use this feature!</span>";
@@ -188,16 +170,6 @@ async function promptGemini(jobDetails) {
 
   // make cv suggestion
   await geminiWriterHandler(CV_TEMPLATE, context, writer, cv_target);
-}
-
-async function writerModelSetup() {
-  return await ai.writer.create({
-    tone: "formal",
-  });
-}
-
-async function promptModelSetup() {
-  return await ai.languageModel.create();
 }
 
 // TODO: generalise this function. currently very hardcoded for the resume
@@ -241,9 +213,7 @@ async function geminiPromptHandler(prompt, model, target) {
     }
   } catch (error) {
     if (error.name !== "AbortError" && error.name !== "InvalidStateError") {
-      console.error("Gemini failed with error name: ", error.name);
-      console.error("Gemini failed with error: ", error.message);
-      console.log("prompt: ", prompt);
+      console.error(`Gemini (Prompt API) failed with error: [${error.name}] ${error.message} for prompt [${prompt}]`);
       geminiTarget.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
       loadHandler(target, 0);
       if (changesTarget) {
@@ -280,10 +250,7 @@ async function geminiWriterHandler(prompt, context, writer, target) {
     loadHandler(target, 1);
   } catch (error) {
     if (error.name !== "AbortError" && error.name !== "InvalidStateError") {
-      console.error("Gemini failed with error name: ", error.name);
-      console.error("Gemini failed with error: ", error.message);
-      console.log("prompt: ", prompt);
-      console.log("context: ", context);
+      console.error(`Gemini (Writer API) failed with error: [${error.name}] ${error.message} for prompt [${prompt}] and context [${context}]`);
       geminiTarget.innerHTML = `<span style='color: red;'>**Error!** The model had issues with this job. Please try again!</span>`;
       loadHandler(target, 0);
       const geminiFailed = new CustomEvent("geminiFailed", {
@@ -354,5 +321,35 @@ function loadHandler(target, status) {
       pauseImg.classList.add("statusImg");
       loadStatus.replaceWith(pauseImg);
     }
+  }
+}
+
+async function onJobCleanup() {
+  // force reset the gemini models
+  if (writer) {
+    writer.destroy();
+    writer = await writerModelSetup();
+  }
+
+  if (resume_model) {
+    resume_model.destroy();
+    if (resumeAvailable) {
+      resume_model = await promptModelSetup();
+    }
+  }
+
+  const textboxes = document.querySelectorAll(".textbox");
+  const statusImgs = document.querySelectorAll(".statusImg");
+  const retryButtons = document.querySelectorAll(".retryButton");
+  for (const text of textboxes) {
+    text.innerHTML = "";
+  }
+  for (const status of statusImgs) {
+    const loaderDiv = document.createElement("div");
+    loaderDiv.classList.add("loader");
+    status.replaceWith(loaderDiv);
+  }
+  for (const retryButton of retryButtons) {
+    retryButton.remove();
   }
 }
