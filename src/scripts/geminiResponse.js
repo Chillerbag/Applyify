@@ -213,7 +213,7 @@ async function geminiPromptHandler(prompt, model, target) {
     }
   } catch (error) {
     if (error.name !== "AbortError" && error.name !== "InvalidStateError") {
-      console.error(`Gemini (Prompt API) failed with error: [${error.name}] ${error.message} for prompt [${prompt}]`);
+      console.error(`Gemini (Prompt API) failed with error: [${error.name}] ${error.message}`);
       geminiTarget.innerHTML = `<span style='color: red;'>**error! the model had issues with this job. Please try again!</span>`;
       loadHandler(target, 0);
       if (changesTarget) {
@@ -250,7 +250,7 @@ async function geminiWriterHandler(prompt, context, writer, target) {
     loadHandler(target, 1);
   } catch (error) {
     if (error.name !== "AbortError" && error.name !== "InvalidStateError") {
-      console.error(`Gemini (Writer API) failed with error: [${error.name}] ${error.message} for prompt [${prompt}] and context [${context}]`);
+      console.error(`Gemini (Writer API) failed with error: [${error.name}] ${error.message}`);
       geminiTarget.innerHTML = `<span style='color: red;'>**Error!** The model had issues with this job. Please try again!</span>`;
       loadHandler(target, 0);
       const geminiFailed = new CustomEvent("geminiFailed", {
@@ -303,6 +303,7 @@ function loadHandler(target, status) {
       loaderDiv.classList.add("loader");
       imgToReplace.replaceWith(loaderDiv);
     }
+    calculating = true;
   } else {
     // there is a loader, so we want to replace it with current status
     if (status === 1) {
@@ -321,6 +322,7 @@ function loadHandler(target, status) {
       pauseImg.classList.add("statusImg");
       loadStatus.replaceWith(pauseImg);
     }
+    calculating = false;
   }
 }
 

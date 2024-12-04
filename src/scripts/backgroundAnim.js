@@ -4,6 +4,14 @@ Description:  the html5 canvas code for the main popup and side panel
 Last modified: 29/11/2024 by Ethan
 */
 
+let calculating = false;
+const CALC_SPEED = 20;
+const CALC_SPAWN_RATE = 0.8;
+const CALC_MAX_BUBBLES = 100;
+
+const NORMAL_SPAWN_RATE = 0.03;
+const NORMAL_MAX_BUBBLES = 40;
+
 const canvas = document.getElementById("bubbleCanvas");
 const context = canvas.getContext("2d");
 
@@ -33,8 +41,12 @@ class Bubble {
   }
 
   update() {
-    // Move bubble upward
-    this.y -= this.speed;
+    // Move bubble upward, faster if calculating
+    if (calculating) {
+      this.y -= this.speed * CALC_SPEED;
+    } else {
+      this.y -= this.speed;
+    }
     this.x += Math.sin(this.y * 0.01) * 0.5;
 
     // Start fading out at random moments
@@ -62,7 +74,7 @@ class Bubble {
 let bubbles = [];
 
 // initial bubble population
-for (let i = 0; i < 30; i++) {
+for (let i = 0; i < 20; i++) {
   bubbles.push(new Bubble());
 }
 
@@ -74,7 +86,13 @@ function animate() {
   bubbles = bubbles.filter((bubble) => !bubble.remove);
 
   // randomly spawn new bubbles
-  if (Math.random() < 0.03 && bubbles.length < 40) {
+  let spawnRate = NORMAL_SPAWN_RATE;
+  let maxBubbles = NORMAL_MAX_BUBBLES;
+  if (calculating) {
+    spawnRate = CALC_SPAWN_RATE;
+    maxBubbles = CALC_MAX_BUBBLES;
+  }
+  if (Math.random() < spawnRate && bubbles.length < maxBubbles) {
     bubbles.push(new Bubble());
   }
 
